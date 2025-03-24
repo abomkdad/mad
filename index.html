@@ -1,41 +1,105 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📦 إدخال الطلبات</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#e6b800">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-                console.log('Service Worker registered with scope:', registration.scope);
-            }).catch(error => {
-                console.log('Service Worker registration failed:', error);
-            });
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import jsPDF from 'jspdf';
+import productsData from '/mnt/data/products.json';
+
+const OrderPage = () => {
+    const [selectedProducts, setSelectedProducts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [category, setCategory] = useState('All');
+    const [displayedProducts, setDisplayedProducts] = useState(productsData);
+    const [quantities, setQuantities] = useState({});
+
+    useEffect(() => {
+        let filteredProducts = productsData;
+        if (category !== 'All') {
+            filteredProducts = filteredProducts.filter(product => product.category === category);
         }
-    </script>
-</head>
-<body>
-    <h2>📦 إدخال الطلبات</h2>
-    <div id="productListContainer">
-        <select id="categoryFilter" onchange="searchProducts()">
-            <option value="">كل الفئات</option>
-        </select>
-        <input type="text" id="searchInput" placeholder="🔍 البحث عن منتج..." onkeyup="searchProducts()">
-        <div id="productList"></div>
-    </div>
-    <div id="cart">
-        <h3>🛒 عربة التسوق</h3>
-        <div id="cartItems"></div>
-        <div>
-            <p id="totalWithoutTax">السعر قبل الضريبة: 0₪</p>
-            <p id="totalWithTax">السعر بعد الضريبة: 0₪</p>
+        if (searchTerm !== '') {
+            filteredProducts = filteredProducts.filter(product =>
+                product.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+        setDisplayedProducts(filteredProducts);
+    }, [searchTerm, category]);
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleCategoryChange = (e) => {
+        setCategory(e.target.value);
+    };
+
+    const handleQuantityChange = (e, productName) => {
+        setQuantities({ ...quantities, [productName]: e.target.value });
+    };
+
+    const addToOrder = (product) => {
+        const quantity = quantities[product.name] || 1;
+        setSelectedProducts([...selectedProducts, { ...product, quantity }]);
+    };
+
+    const generatePDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(12);
+        doc.text("Order List", 10, 10);
+
+        selectedProducts.forEach((product, index) => {
+            doc.text(`${index + 1}. ${product.name} - الكمية: ${product.quantity}`, 10, 20 + index * 10);
+        });
+
+        doc.save("Order_List.pdf");
+    };
+
+    const submitOrder = () => {
+        const orderText = selectedProducts.map(product => `- ${product.name} (الكمية: ${product.quantity})`).join('\n');
+        const whatsappUrl = `https://wa.me/?text=طلب جديد:\n${encodeURIComponent(orderText)}`;
+        window.open(whatsappUrl, '_blank');
+        generatePDF();
+    };
+
+    return (
+        <div className="p-4 bg-black text-white min-h-screen">
+            <div className="flex justify-between items-center mb-4">
+                <input 
+                    type="text" 
+                    value={searchTerm} 
+                    onChange={handleSearch} 
+                    placeholder="ابحث عن المنتج..." 
+                    className="p-2 rounded bg-white text-black"
+                />
+                <select onChange={handleCategoryChange} value={category} className="p-2 rounded bg-white text-black ml-4">
+                    <option value="All">جميع الفئات</option>
+                    <option value="Women">نساء</option>
+                    <option value="Men">رجال</option>
+                    <option value="Unisex">يونيسكس</option>
+                    <option value="Niche">عطور نيش</option>
+                </select>
+                <Button className="bg-green-500 text-white ml-4" onClick={submitOrder}>إرسال الطلب وحفظ كـ PDF</Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {displayedProducts.map((product, index) => (
+                    <Card key={index} className="bg-white text-black">
+                        <CardContent>
+                            <h2>{product.name}</h2>
+                            <p>{product.description}</p>
+                            <input 
+                                type="number" 
+                                min="1" 
+                                value={quantities[product.name] || 1} 
+                                onChange={(e) => handleQuantityChange(e, product.name)}
+                                className="p-1 mt-2 mb-2 w-full rounded bg-gray-200"
+                            />
+                            <Button onClick={() => addToOrder(product)}>إضافة إلى الطلب</Button>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
         </div>
-        <button onclick="sendOrder()">📲 إرسال الطلب عبر واتساب</button>
-        <button onclick="printOrder()">🖨️ طباعة الطلب</button>
-    </div>
-</body>
-</html>
+    );
+};
+
+export default OrderPage;
