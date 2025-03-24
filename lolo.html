@@ -1,105 +1,125 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import jsPDF from 'jspdf';
-import productsData from '/mnt/data/products.json';
+<!DOCTYPE html>
+<html lang="en">
 
-const OrderPage = () => {
-    const [selectedProducts, setSelectedProducts] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [category, setCategory] = useState('All');
-    const [displayedProducts, setDisplayedProducts] = useState(productsData);
-    const [quantities, setQuantities] = useState({});
-
-    useEffect(() => {
-        let filteredProducts = productsData;
-        if (category !== 'All') {
-            filteredProducts = filteredProducts.filter(product => product.category === category);
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAD Parfumeur - Product Catalog</title>
+    <style>
+        /* Basic CSS Styling */
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        if (searchTerm !== '') {
-            filteredProducts = filteredProducts.filter(product =>
-                product.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
         }
-        setDisplayedProducts(filteredProducts);
-    }, [searchTerm, category]);
 
-    const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-    };
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
 
-    const handleCategoryChange = (e) => {
-        setCategory(e.target.value);
-    };
+        .product-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    const handleQuantityChange = (e, productName) => {
-        setQuantities({ ...quantities, [productName]: e.target.value });
-    };
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
 
-    const addToOrder = (product) => {
-        const quantity = quantities[product.name] || 1;
-        setSelectedProducts([...selectedProducts, { ...product, quantity }]);
-    };
+        .product-name {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
 
-    const generatePDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(12);
-        doc.text("Order List", 10, 10);
+        .resemblance {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 5px;
+        }
 
-        selectedProducts.forEach((product, index) => {
-            doc.text(`${index + 1}. ${product.name} - الكمية: ${product.quantity}`, 10, 20 + index * 10);
+        .notes {
+            margin-top: 10px;
+        }
+
+        .notes p {
+            margin: 5px 0;
+        }
+
+        .add-to-cart {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .add-to-cart:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>MAD Parfumeur - Selective Woman</h1>
+        <div class="product-grid">
+            <div class="product-card">
+                <img src="images/A104.jpg" alt="A.104 Perfume" class="product-image">
+                <h2 class="product-name">A.104</h2>
+                <p class="resemblance">Resembling Angel by THIERRY MUGLER</p>
+                <p class="fragrance-family">GOURMAND</p>
+                <div class="notes">
+                    <p class="top-notes"><strong>Top Note:</strong> Melon, Coconut, Mandarin Orange, Cassia, Jasmine</p>
+                    <p class="middle-notes"><strong>Middle Note:</strong> Honey, Apricot, Blackberry, Plum, Orchid</p>
+                    <p class="base-notes"><strong>Base Note:</strong> Tonka Bean, Amber, Patchouli, Musk, Vanilla</p>
+                </div>
+                <button class="add-to-cart" data-name="A.104">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="images/A112.jpg" alt="A.112 Perfume" class="product-image">
+                <h2 class="product-name">A.112</h2>
+                <p class="resemblance">Resembling Alien by THIERRY MUGLER</p>
+                <p class="fragrance-family">ORIENTAL WOODY</p>
+                <div class="notes">
+                    <p class="top-notes"><strong>Top Note:</strong> Mandarin Orange, Jasmine, Orange Blossom</p>
+                    <p class="middle-notes"><strong>Middle Note:</strong> Cashmeran</p>
+                    <p class="base-notes"><strong>Base Note:</strong> White Amber, Vanilla, Woody Notes</p>
+                </div>
+                <button class="add-to-cart" data-name="A.112">Add to Cart</button>
+            </div>
+
+            </div>
+    </div>
+
+    <script>
+        // JavaScript - Add to Cart Functionality
+        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const productName = button.getAttribute('data-name');
+                // Basic cart functionality (you would need to expand this)
+                let cart = JSON.parse(localStorage.getItem('cart') || '');
+                cart.push(productName);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                alert(`${productName} added to cart!`);
+            });
         });
+    </script>
+</body>
 
-        doc.save("Order_List.pdf");
-    };
-
-    const submitOrder = () => {
-        const orderText = selectedProducts.map(product => `- ${product.name} (الكمية: ${product.quantity})`).join('\n');
-        const whatsappUrl = `https://wa.me/?text=طلب جديد:\n${encodeURIComponent(orderText)}`;
-        window.open(whatsappUrl, '_blank');
-        generatePDF();
-    };
-
-    return (
-        <div className="p-4 bg-black text-white min-h-screen">
-            <div className="flex justify-between items-center mb-4">
-                <input 
-                    type="text" 
-                    value={searchTerm} 
-                    onChange={handleSearch} 
-                    placeholder="ابحث عن المنتج..." 
-                    className="p-2 rounded bg-white text-black"
-                />
-                <select onChange={handleCategoryChange} value={category} className="p-2 rounded bg-white text-black ml-4">
-                    <option value="All">جميع الفئات</option>
-                    <option value="Women">نساء</option>
-                    <option value="Men">رجال</option>
-                    <option value="Unisex">يونيسكس</option>
-                    <option value="Niche">عطور نيش</option>
-                </select>
-                <Button className="bg-green-500 text-white ml-4" onClick={submitOrder}>إرسال الطلب وحفظ كـ PDF</Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {displayedProducts.map((product, index) => (
-                    <Card key={index} className="bg-white text-black">
-                        <CardContent>
-                            <h2>{product.name}</h2>
-                            <p>{product.description}</p>
-                            <input 
-                                type="number" 
-                                min="1" 
-                                value={quantities[product.name] || 1} 
-                                onChange={(e) => handleQuantityChange(e, product.name)}
-                                className="p-1 mt-2 mb-2 w-full rounded bg-gray-200"
-                            />
-                            <Button onClick={() => addToOrder(product)}>إضافة إلى الطلب</Button>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </div>
-    );
-};
-
-export default OrderPage;
+</html>
