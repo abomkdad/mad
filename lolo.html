@@ -1,125 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html>
 <head>
-    <meta charset="UTF-8">
+    <title>דף הזמנה</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAD Parfumeur - Product Catalog</title>
     <style>
-        /* Basic CSS Styling */
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            border: 1px solid #ccc;
-            padding: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .product-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            margin-bottom: 10px;
-        }
-
-        .product-name {
-            font-size: 1.2em;
-            margin-bottom: 5px;
-        }
-
-        .resemblance {
-            font-style: italic;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .notes {
-            margin-top: 10px;
-        }
-
-        .notes p {
-            margin: 5px 0;
-        }
-
-        .add-to-cart {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .add-to-cart:hover {
-            background-color: #0056b3;
-        }
+        body { font-family: 'Arial', sans-serif; background-color: #1a1a1a; margin: 0; padding: 0; direction: rtl; text-align: right; color: #f0f0f0; }
+        .container { margin: auto; padding: 30px; max-width: 100%; background-color: #2a2a2a; border-radius: 15px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); }
+        h1 { text-align: center; color: #d4af37; font-size: 2em; }
+        .product { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; padding: 20px; background-color: #333; border: 1px solid #444; border-radius: 12px; }
+        .product img { width: 100%; max-width: 200px; height: auto; object-fit: cover; border-radius: 12px; border: 1px solid #666; }
+        .product-info { text-align: center; margin-top: 10px; }
+        .order-btn { padding: 10px 15px; background-color: #d4af37; color: black; border: none; border-radius: 8px; cursor: pointer; }
+        .order-btn:hover { background-color: #b38e22; }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>MAD Parfumeur - Selective Woman</h1>
-        <div class="product-grid">
-            <div class="product-card">
-                <img src="images/A104.jpg" alt="A.104 Perfume" class="product-image">
-                <h2 class="product-name">A.104</h2>
-                <p class="resemblance">Resembling Angel by THIERRY MUGLER</p>
-                <p class="fragrance-family">GOURMAND</p>
-                <div class="notes">
-                    <p class="top-notes"><strong>Top Note:</strong> Melon, Coconut, Mandarin Orange, Cassia, Jasmine</p>
-                    <p class="middle-notes"><strong>Middle Note:</strong> Honey, Apricot, Blackberry, Plum, Orchid</p>
-                    <p class="base-notes"><strong>Base Note:</strong> Tonka Bean, Amber, Patchouli, Musk, Vanilla</p>
-                </div>
-                <button class="add-to-cart" data-name="A.104">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="images/A112.jpg" alt="A.112 Perfume" class="product-image">
-                <h2 class="product-name">A.112</h2>
-                <p class="resemblance">Resembling Alien by THIERRY MUGLER</p>
-                <p class="fragrance-family">ORIENTAL WOODY</p>
-                <div class="notes">
-                    <p class="top-notes"><strong>Top Note:</strong> Mandarin Orange, Jasmine, Orange Blossom</p>
-                    <p class="middle-notes"><strong>Middle Note:</strong> Cashmeran</p>
-                    <p class="base-notes"><strong>Base Note:</strong> White Amber, Vanilla, Woody Notes</p>
-                </div>
-                <button class="add-to-cart" data-name="A.112">Add to Cart</button>
-            </div>
-
-            </div>
+    <div class="container" id="order-content">
+        <h1>📦 דף הזמנה למוצרים</h1>
+        <input type="text" id="searchBar" class="search-bar" placeholder="חפש מוצר..." oninput="displayProducts()">
+        <div id="product-list"></div>
+        <div id="cart">
+            <h2>🛒 עגלת קניות</h2>
+            <ul id="cart-items"></ul>
+            <div id="total-without-tax">סה"כ ללא מע"מ: 0 ILS</div>
+            <div id="total-with-tax">סה"כ כולל מע"מ: 0 ILS</div>
+            <button class="order-btn" onclick="sendToWhatsApp()">📲 שלח לווטסאפ</button>
+        </div>
+        <button class="order-btn" onclick="openEditModal()" style="margin-top: 20px;">🔧 כניסה לניהול מוצרים</button>
     </div>
 
     <script>
-        // JavaScript - Add to Cart Functionality
-        const addToCartButtons = document.querySelectorAll('.add-to-cart');
+        const TAX_RATE = 0.18;
+        let cart = [];
+        let products = [
+            {
+                "Title": "W183",
+                "Description": "בשמי גברים W183",
+                "Price": 100,
+                "Image Link": "https://madperfume.co.il/upload/05-2024/product/CREED1.jpg"
+            },
+            {
+                "Title": "I101",
+                "Description": "בשמי גברים I101",
+                "Price": 100,
+                "Image Link": "https://madperfume.co.il/upload/09-2023/product/WhatsApp Image 2023-07-19 at 02.51.08.jpg"
+            }
+        ];
 
-        addToCartButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const productName = button.getAttribute('data-name');
-                // Basic cart functionality (you would need to expand this)
-                let cart = JSON.parse(localStorage.getItem('cart') || '');
-                cart.push(productName);
-                localStorage.setItem('cart', JSON.stringify(cart));
-                alert(`${productName} added to cart!`);
+        function addToCart(index) {
+            const quantity = parseInt(document.getElementById(`qty-${index}`).value);
+            const product = products[index];
+            const existing = cart.find(item => item.title === product.Title);
+            if (existing) {
+                existing.quantity += quantity;
+            } else {
+                cart.push({ title: product.Title, price: product.Price, quantity: quantity });
+            }
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            cartItems.innerHTML = '';
+
+            let total = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                const li = document.createElement('li');
+                li.innerText = `${item.title} - כמות: ${item.quantity} - מחיר: ${itemTotal} ILS`;
+                cartItems.appendChild(li);
             });
-        });
+
+            const totalWithTax = total * (1 + TAX_RATE);
+            document.getElementById('total-without-tax').innerText = `סה"כ ללא מע"מ: ${total.toFixed(2)} ILS`;
+            document.getElementById('total-with-tax').innerText = `סה"כ כולל מע"מ: ${totalWithTax.toFixed(2)} ILS`;
+        }
+
+        function sendToWhatsApp() {
+            if (cart.length === 0) {
+                alert('עגלת הקניות ריקה!');
+                return;
+            }
+
+            let message = "הזמנה שלי:\n";
+            let total = 0;
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                message += `${item.title} - כמות: ${item.quantity} - מחיר: ${itemTotal} ILS\n`;
+            });
+
+            const totalWithTax = total * (1 + TAX_RATE);
+            message += `\nסה"כ ללא מע"מ: ${total.toFixed(2)} ILS\nסה"כ כולל מע"מ: ${totalWithTax.toFixed(2)} ILS`;
+
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function displayProducts() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            products.forEach((product, index) => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product';
+                productDiv.innerHTML = `
+                    <img src="${product['Image Link']}" alt="${product.Title}">
+                    <div class="product-info">
+                        <strong>${product.Title}</strong><br>
+                        ${product.Description}<br>
+                        מחיר: ${product.Price} ILS<br>
+                        <label>כמות: <input type="number" id="qty-${index}" value="1" min="1"></label>
+                        <button class="order-btn" onclick="addToCart(${index})">➕ הוסף לעגלה</button>
+                    </div>
+                `;
+                productList.appendChild(productDiv);
+            });
+        }
+
+        displayProducts();
     </script>
 </body>
-
 </html>
