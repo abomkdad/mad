@@ -201,7 +201,7 @@
                         ${product.image ? `<div style="width: 100%; height: 0; padding-bottom: 100%; position: relative; margin-bottom: 0.5rem; border-radius: 0.75rem; overflow: hidden;">
                             <img src="${product.image}" style="position: absolute; width: 100%; height: 100%; object-fit: cover;">
                         </div>` : ''}
-                        <div class="product-title">${product.name} - ${product.price.toFixed(2)} שקל</div>
+                        <div class="product-title">${product.name} - ${product.price.toFixed(2)} شקל</div>
                         <div class="product-description">${product.description}</div>
                     </div>
                 `;
@@ -259,7 +259,7 @@
 
             if (selectedProducts.length > 0) {
                 $('#cartDisplay').append(`<div class="mt-2 font-bold">سך הכל: ${totalPrice.toFixed(2)} שקל</div>`);
-                $('#cartDisplay').append('<button id="whatsappButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">שלח لوואטسאפ 📲</button>');
+                $('#cartDisplay').append('<button id="whatsappButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">שלح لوואטسאפ 📲</button>');
                 $('#cartDisplay').append('<button id="downloadPdfButton" class="mt-4 ml-2 bg-red-500 hover:bg-red-600 text-white py-2.5 px-5 rounded-md font-semibold">הورד PDF 📄</button>');
                 $('#cartDisplay').append('<button id="sendWhatsAppPdfButton" class="whatsapp-button">أرسل الطلب PDF عبر واتساب 📱</button>'); // زر جديد لإرسال PDF عبر واتساب
 
@@ -284,7 +284,7 @@
 
                     message += `\nالعدد الكلي: ${totalQuantity}`;
                     message += `\nالمجموع بدون الضريبة: ${totalPriceWithoutTax.toFixed(2)} شקל`;
-                    message += `\nالضريبة (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} شקל`;
+                    message += `\nالضريبة (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} שקל`;
                     message += `\nالمجموع مع الضريبة: ${totalPriceWithTax.toFixed(2)} שקל`;
 
                     const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -372,14 +372,14 @@
             y += lineHeight;
             pdf.text(`Grand Total: ${grandTotal.toFixed(2)} ILS`, margin, y);
 
-            pdf.save('order_summary.pdf');
+            window.open(pdf.output('bloburl'), '_blank'); // فتح PDF في المتصفح
         }
 
         function sendOrderAsPDFWhatsApp(totalPrice) {
-            downloadOrderPDF(totalPrice); // تنزيل ملف PDF
+            downloadOrderPDF(totalPrice); // فتح ملف PDF في المتصفح
 
-            let message = 'تم تنزيل ملخص طلبك بتنسيق PDF. يمكنك مشاركته عبر واتساب.\n\n';
-            message += 'تفاصيل الطلب:\n\n';
+            let message = 'تم فتح ملخص طلبك في علامة تبويب جديدة. يمكنك الآن استخدام خيار المشاركة في متصفحك لمشاركته عبر واتساب أو أي وسيلة أخرى.\n\n';
+            message += 'تفاصيل الطلب (للمشاركة النصية):\n\n';
             selectedProducts.forEach(product => {
                 message += `المنتج: ${product.name} (${product.code}) = العدد: ${product.quantity}\n`;
             });
@@ -391,7 +391,7 @@
             const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
             window.open(whatsappURL, '_blank');
 
-            alert('تم تنزيل ملخص الطلب بتنسيق PDF. يمكنك الآن مشاركته عبر تطبيق واتساب.');
+            alert('تم فتح ملخص الطلب في المتصفح. يمكنك الآن استخدام خيار المشاركة في متصفحك لمشاركته.');
         }
     </script>
 </body>
