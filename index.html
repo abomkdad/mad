@@ -8,156 +8,268 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body { background-color: #f3f4f6; }
+        body {
+            background-color: #f4f4f4; /* Light gray background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Clear, modern font */
+            font-size: 16px; /* Slightly larger base font size for readability */
+            color: #333; /* Dark gray text */
+        }
         .product-card {
-            background-color: white;
+            background-color: #fff;
             border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            transition: transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow */
+            padding: 20px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #334155;
+            cursor: pointer;
+            border: 1px solid #e0e0e0; /* Subtle border */
         }
         .product-card:hover {
             transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* More pronounced shadow on hover */
+            border-color: #c0c0c0;
+        }
+        .product-image-container {
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%;
+            position: relative;
+            margin-bottom: 1.5rem; /* Increased margin */
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for image */
+        }
+        .product-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .product-title {
-            font-size: 1rem;
+            font-size: 1.25rem; /* Larger, clearer title */
             font-weight: 600;
             margin-top: 0.75rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem; /* Increased margin */
             text-align: center;
+            color: #2c3e50; /* Darker, sophisticated title color */
         }
         .product-description {
-            font-size: 0.875rem;
+            font-size: 1rem; /* Clear description font size */
             text-align: center;
-            margin-bottom: 0.75rem;
-            color: #64748b;
-            line-height: 1.5;
+            margin-bottom: 1.25rem; /* Increased margin */
+            color: #555; /* Slightly lighter, readable description color */
+            line-height: 1.7;
         }
         #productList {
             height: 70vh;
             overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #cbd5e0;
+            padding: 20px;
+            border: 1px solid #d0d0d0;
             border-radius: 10px;
-            margin-bottom: 60px;
-            background-color: white;
+            margin-bottom: 70px;
+            background-color: #f9f9f9; /* Slightly off-white background */
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle inner shadow */
         }
         #cartDisplay {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: white;
-            padding: 15px;
-            border-top: 3px solid #22c55e;
-            max-height: 250px;
+            background-color: #e0e0e0; /* Light gray cart background */
+            padding: 20px;
+            border-top: 3px solid #5cb85c; /* Classic green */
+            max-height: 350px; /* Increased max height */
             overflow-y: auto;
-            color: #334155;
+            color: #333;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
         }
         .cart-item {
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
-            justify-content: space-between; /* Added to space items and delete button */
+            margin-bottom: 1.5rem;
+            justify-content: space-between;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #ccc; /* Clear separator */
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+            margin-bottom: 2rem;
         }
         .cart-item img {
-            width: 50px;
-            height: 50px;
-            margin-right: 1rem;
+            width: 70px; /* Slightly larger image */
+            height: 70px;
+            margin-right: 1.5rem;
             border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         .cart-item-details {
-            flex-grow: 1; /* Allows details to take up available space */
+            flex-grow: 1;
+        }
+        .cart-item-details h4 {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem; /* Clearer font */
+        }
+        .cart-item-details p {
+            color: #555;
+            font-size: 0.95rem;
         }
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 30; /* Higher z-index */
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7); /* Darker overlay */
         }
         .modal-content {
-            background-color: #fefefe;
-            margin: 0 auto; /* إزالة الهوامش */
-            top: 0; /* تثبيت في الأعلى */
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            border-radius: 10px;
-            position: fixed; /* تغيير الوضع إلى ثابت */
-            z-index: 10; /* التأكد من ظهورها فوق العناصر الأخرى */
+            background-color: #fff;
+            margin: 10% auto; /* Adjust margin */
+            padding: 30px;
+            border: 1px solid #aaa;
+            width: 85%; /* Slightly wider modal */
+            max-width: 700px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
+            position: relative;
         }
         #closeModal {
-            color: #64748b;
-            font-size: 1.75rem;
+            color: #777;
+            font-size: 2.5rem; /* Even larger close button */
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
         }
         #closeModal:hover,
         #closeModal:focus {
-            color: #334155;
+            color: #333;
+        }
+        #modalContent {
+            padding-top: 3rem;
+        }
+        #modalContent img {
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #modalContent .text-lg {
+            font-size: 1.5rem; /* Larger modal title */
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        #modalContent > div { /* Style price and quantity */
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        #modalContent input[type="number"] {
+            border-radius: 0.3rem;
+            padding: 0.6rem;
+            width: 90px;
+            text-align: center;
+            font-size: 1rem;
+            color: #333;
+            border: 1px solid #ccc;
+            margin-top: 0.5rem;
+        }
+        #modalContent button {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            border-radius: 0.3rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease-in-out;
+            background-color: #5cb85c; /* Classic green */
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #modalContent button:hover {
+            background-color: #4cae4c;
         }
         #confirmationMessage {
             position: fixed;
-            top: 1.5rem;
+            top: 3rem;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #86efac;
-            color: #1e293b;
-            padding: 1rem 2rem;
-            border-radius: 0.375rem;
+            background-color: #dff0d8; /* Light green */
+            color: #3c763d; /* Darker green text */
+            padding: 1rem 2.5rem;
+            border-radius: 0.3rem;
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.4s ease-in-out;
+            border: 1px solid #d6e9c6;
         }
         .delete-button {
-            background-color: #f44336;
+            background-color: #d9534f; /* Classic red */
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 8px 15px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 0.875rem;
-            border-radius: 0.375rem;
+            font-size: 0.9rem;
+            border-radius: 0.3rem;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
         .delete-button:hover {
-            background-color: #d32f2f;
+            background-color: #c9302c;
         }
         .whatsapp-button {
-            background-color: #25D366;
+            background-color: #25d366; /* WhatsApp green */
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 20px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 0.875rem;
-            border-radius: 0.375rem;
+            font-size: 1rem;
+            border-radius: 0.3rem;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin-top: 0.5rem;
-            margin-left: 0.5rem;
+            margin-top: 1.5rem;
+            margin-left: 1rem;
         }
         .whatsapp-button:hover {
-            background-color: #128C7E;
+            background-color: #128c7e;
         }
-        /* إزالة CSS الخاص بالطباعة */
+        #cartDisplay .mt-2.font-bold {
+            font-size: 1.2rem;
+            color: #333;
+            margin-top: 2rem;
+        }
+        #searchInput {
+            border: 1px solid #ccc;
+            padding: 0.8rem;
+            border-radius: 0.3rem;
+            width: 100%;
+            font-size: 1rem;
+            color: #333;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        #searchInput:focus {
+            outline: none;
+            border-color: #5cb85c; /* Green focus */
+            box-shadow: 0 0 0 0.2rem rgba(92, 184, 92, 0.25); /* Green focus shadow */
+        }
     </style>
 </head>
 <body>
-    <div class="container mx-auto p-2">
-        <div class="flex justify-between items-center mb-4">
-            <input id="searchInput" type="text" placeholder="ابحث عن המוצר..." class="border p-2 rounded w-full">
+    <div class="container mx-auto p-4 md:p-6 lg:p-8">
+        <div class="flex justify-between items-center mb-6">
+            <input id="searchInput" type="text" placeholder="ابحث عن المنتج..." class="rounded w-full">
         </div>
-        <div id="productList" class="grid grid-cols-3 gap-2"></div>
+        <div id="productList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
         <div id="cartDisplay"></div>
 
         <div id="productModal" class="modal">
@@ -174,125 +286,178 @@
         let selectedProducts = [];
 
         $.get('https://docs.google.com/spreadsheets/d/1g3_D2NBwT27O2OI-v1R5tAB2QCfF3_ZCUL9sSLoCv54/gviz/tq?tqx=out:json', function(response) {
-            const jsonData = JSON.parse(response.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
-            const rows = jsonData.table.rows;
+            try {
+                const jsonData = JSON.parse(response.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
+                const rows = jsonData.table.rows;
 
-            rows.forEach(row => {
-                const productName = row.c[0]?.v;
-                const productDescription = row.c[1]?.v || 'بدون وصف';
-                const productPrice = parseFloat(row.c[2]?.v) || 0;
-                const productImage = row.c[3]?.v;
-                const productCode = row.c[4]?.v; // جلب رمز المنتج من العمود E (index 4)
+                rows.forEach(row => {
+                    try {
+                        const productName = row.c[0]?.v;
+                        const productDescription = row.c[1]?.v || 'بدون وصف';
+                        const productPrice = parseFloat(row.c[2]?.v) || 0;
+                        const productImage = row.c[3]?.v;
+                        const productCode = row.c[4]?.v; // جلب رمز المنتج من العمود E (index 4)
 
-                if (productName) {
-                    products.push({ name: productName, description: productDescription, price: productPrice, image: productImage, code: productCode });
-                }
-            });
-            displayProducts(products);
+                        if (productName) {
+                            products.push({ name: productName, description: productDescription, price: productPrice, image: productImage, code: productCode });
+                        } else {
+                            console.warn("Product name is missing in the Google Sheet:", row);
+                        }
+                    } catch (error) {
+                        console.error("Error processing row from Google Sheet:", row, error);
+                    }
+                });
+                displayProducts(products);
+            } catch (error) {
+                console.error("Error fetching or parsing data from Google Sheet:", error);
+                $('#productList').html('<div class="text-red-500 text-center">שגיאה בטעינת המוצרים. אנא נסה שוב מאוחר יותר.</div>');
+            }
         }).fail(function() {
+            console.error("Failed to fetch data from Google Sheet.");
             $('#productList').html('<div class="text-red-500 text-center">שגיאה בטעינת המוצרים. אנא נסה שוב מאוחר יותר.</div>');
         });
 
         function displayProducts(productsToShow) {
             $('#productList').empty();
             productsToShow.forEach(product => {
-                const productHtml = `
-                    <div class="product-card" onclick="openModal('${product.name}', ${product.price}, '${product.image}')">
-                        ${product.image ? `<div style="width: 100%; height: 0; padding-bottom: 100%; position: relative; margin-bottom: 0.5rem; border-radius: 0.75rem; overflow: hidden;">
-                            <img src="${product.image}" style="position: absolute; width: 100%; height: 100%; object-fit: cover;">
-                        </div>` : ''}
-                        <div class="product-title">${product.name} - ${product.price.toFixed(2)} שקל</div>
-                        <div class="product-description">${product.description}</div>
-                    </div>
-                `;
-                $('#productList').append(productHtml);
+                try {
+                    const productHtml = `
+                        <div class="product-card">
+                            ${product.image ? `<div class="product-image-container">
+                                <img src="${product.image}" class="product-image">
+                            </div>` : ''}
+                            <div class="product-title">${product.name} - ${product.price.toFixed(2)} שקל</div>
+                            <div class="product-description">${product.description}</div>
+                        </div>
+                    `;
+                    const $productCard = $(productHtml);
+                    $productCard.on('click', function() {
+                        openModal(product.name, product.price, product.image);
+                    });
+                    $('#productList').append($productCard);
+                } catch (error) {
+                    console.error("Error displaying product:", product, error);
+                }
             });
         }
 
         function openModal(name, price, image) {
-            console.log('openModal called');
-            $('#modalContent').html(`
-                ${image ? `<img src="${image}" class="w-full max-h-48 object-contain rounded mb-4">` : ''}
-                <div class="text-lg font-bold mb-2">${name}</div>
-                <div>מחיר: ${price} ILS</div>
-                <div class="mt-3"><input type="number" id="quantityInput" min="1" placeholder="כמות" dir="rtl" class="border rounded-md p-3 w-32 text-lg text-black"></div>
-                <button onclick="addToCart('${name}', ${price}, '${image}')" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">הוסף לסל</button>
-            `);
-            $('#productModal').show();
+            console.log('openModal called for:', name);
+            try {
+                $('#modalContent').html(`
+                    ${image ? `<img src="${image}" class="w-full object-contain rounded mb-4">` : ''}
+                    <div class="text-lg font-bold mb-2">${name}</div>
+                    <div>מחיר: ${price} ILS</div>
+                    <div class="mt-3"><input type="number" id="quantityInput" min="1" placeholder="כמות" dir="rtl" class="border rounded-md p-3 w-32 text-lg text-black"></div>
+                    <button onclick="addToCart('${name}', ${price}, '${image}')" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">הוסף לסל</button>
+                `);
+                $('#productModal').show();
+            } catch (error) {
+                console.error("Error opening modal for product:", name, error);
+            }
         }
 
         function addToCart(name, price, image) {
-            const quantity = parseInt($('#quantityInput').val());
-            const productDetails = products.find(p => p.name === name);
-            selectedProducts.push({ name, price, image, quantity, code: productDetails ? productDetails.code : '' }); // تخزين رمز المنتج عند الإضافة إلى السلة
-            $('#productModal').hide();
-            displayCart();
-            // عرض رسالة التأكيد
-            $('#confirmationMessage').text('התווסף לסל!');
-            $('#confirmationMessage').css('opacity', 1);
-            setTimeout(() => {
-                $('#confirmationMessage').css('opacity', 0);
-            }, 1500);
+            try {
+                const quantity = parseInt($('#quantityInput').val());
+                const productDetails = products.find(p => p.name === name);
+                selectedProducts.push({ name, price, image, quantity, code: productDetails ? productDetails.code : '' }); // تخزين رمز المنتج عند الإضافة إلى السلة
+                $('#productModal').hide();
+                displayCart();
+                // عرض رسالة التأكيد
+                $('#confirmationMessage').text('התווסף לסל!');
+                $('#confirmationMessage').css('opacity', 1);
+                setTimeout(() => {
+                    $('#confirmationMessage').css('opacity', 0);
+                }, 1500);
+            } catch (error) {
+                console.error("Error adding product to cart:", name, error);
+            }
         }
 
         function removeFromCart(index) {
-            selectedProducts.splice(index, 1);
-            displayCart();
+            try {
+                selectedProducts.splice(index, 1);
+                displayCart();
+            } catch (error) {
+                console.error("Error removing item from cart at index:", index, error);
+            }
         }
 
         function displayCart() {
             $('#cartDisplay').empty();
             let totalPrice = 0;
-            selectedProducts.forEach((product, index) => {
-                const itemPrice = product.price * product.quantity;
-                totalPrice += itemPrice;
-                $('#cartDisplay').append(`
-                    <div class="cart-item">
-                        <div class="flex items-center">
-                            ${product.image ? `<img src="${product.image}">` : ''}
-                            <div class="cart-item-details">${product.name} - כמות: ${product.quantity} - מחיר: ${itemPrice.toFixed(2)} שקל</div>
-                        </div>
-                        <button class="delete-button" onclick="removeFromCart(${index})">حذف</button>
-                    </div>
-                `);
-            });
-
-            if (selectedProducts.length > 0) {
-                $('#cartDisplay').append(`<div class="mt-2 font-bold">סך הכל: ${totalPrice.toFixed(2)} שקל</div>`);
-                $('#cartDisplay').append('<button id="whatsappButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">שתף בוואטסאפ 📲</button>');
-                $('#cartDisplay').append('<button id="downloadPdfButton" class="mt-4 ml-2 bg-red-500 hover:bg-red-600 text-white py-2.5 px-5 rounded-md font-semibold">Download as PDF 📄</button>');
-
-                $('#whatsappButton').click(function() {
-                    if (selectedProducts.length === 0) {
-                        alert('לא נבחרו מוצרים.');
-                        return;
+            try {
+                selectedProducts.forEach((product, index) => {
+                    try {
+                        const itemPrice = product.price * product.quantity;
+                        totalPrice += itemPrice;
+                        $('#cartDisplay').append(`
+                            <div class="cart-item">
+                                <div class="flex items-center">
+                                    ${product.image ? `<img src="${product.image}">` : ''}
+                                    <div class="cart-item-details">
+                                        <h4>${product.name}</h4>
+                                        <p>כמות: ${product.quantity} - מחיר: ${itemPrice.toFixed(2)} שקל</p>
+                                    </div>
+                                </div>
+                                <button class="delete-button" onclick="removeFromCart(${index})">حذف</button>
+                            </div>
+                        `);
+                    } catch (error) {
+                        console.error("Error displaying cart item:", product, error);
                     }
-                    let message = '';
-                    let totalQuantity = 0;
-                    let totalPriceWithoutTax = 0;
-                    const taxRate = 0.18; // نسبة الضريبة (18%)
+                });
 
-                    selectedProducts.forEach(p => {
-                        message += `מוצר: ${p.name} (${p.code}) = כמות: ${p.quantity}\n`;
-                        totalQuantity += parseInt(p.quantity);
-                        totalPriceWithoutTax += p.price * p.quantity;
+                if (selectedProducts.length > 0) {
+                    $('#cartDisplay').append(`<div class="mt-2 font-bold">סך הכל: ${totalPrice.toFixed(2)} שקל</div>`);
+                    $('#cartDisplay').append('<button id="whatsappButton" class="whatsapp-button">שתף בוואטסאפ 📲</button>');
+                    $('#cartDisplay').append('<button id="downloadPdfButton" class="whatsapp-button ml-2" style="background-color: #5bc0de; border-color: #46b8da;">Download as PDF 📄</button>');
+
+                    $('#whatsappButton').off('click').on('click', function() {
+                        try {
+                            if (selectedProducts.length === 0) {
+                                alert('לא נבחרו מוצרים.');
+                                return;
+                            }
+                            let message = '';
+                            let totalQuantity = 0;
+                            let totalPriceWithoutTax = 0;
+                            const taxRate = 0.18; // نسبة الضريبة (18%)
+
+                            selectedProducts.forEach(p => {
+                                message += `מוצר: ${p.name} (${p.code}) = כמות: ${p.quantity}\n`;
+                                totalQuantity += parseInt(p.quantity);
+                                totalPriceWithoutTax += p.price * p.quantity;
+                            });
+
+                            const taxAmount = totalPriceWithoutTax * taxRate;
+                            const totalPriceWithTax = totalPriceWithoutTax + taxAmount;
+
+                            message += `\nכמות כוללת: ${totalQuantity}`;
+                            message += `\nסך הכל ללא מע"מ: ${totalPriceWithoutTax.toFixed(2)} שקל`;
+                            message += `\nמע"מ (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} שקל`;
+                            message += `\nהסך הכולל כולל מע"מ: ${totalPriceWithTax.toFixed(2)} שקל`;
+
+                            const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                            window.open(whatsappURL, '_blank');
+                        } catch (error) {
+                            console.error("Error generating WhatsApp message:", error);
+                            alert('Failed to generate WhatsApp message.');
+                        }
                     });
 
-                    const taxAmount = totalPriceWithoutTax * taxRate;
-                    const totalPriceWithTax = totalPriceWithoutTax + taxAmount;
-
-                    message += `\nכמות כוללת: ${totalQuantity}`;
-                    message += `\nסך הכל ללא מע"מ: ${totalPriceWithoutTax.toFixed(2)} שקל`;
-                    message += `\nמע"מ (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} שקל`;
-                    message += `\nהסך הכולל כולל מע"מ: ${totalPriceWithTax.toFixed(2)} שקל`;
-
-                    const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
-                    window.open(whatsappURL, '_blank');
-                });
-
-                $('#downloadPdfButton').click(function() {
-                    downloadOrderPDF(totalPrice); // استدعاء وظيفة تنزيل PDF
-                });
+                    $('#downloadPdfButton').off('click').on('click', function() {
+                        try {
+                            downloadOrderPDF(totalPrice); // استدعاء وظيفة تنزيل PDF
+                        } catch (error) {
+                            console.error("Error initiating PDF download:", error);
+                            alert('Failed to download PDF.');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error displaying cart:", error);
             }
         }
 
@@ -314,60 +479,65 @@
         });
 
         function downloadOrderPDF(totalPrice) {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            const margin = 15;
-            let y = 20;
-            const lineHeight = 10;
-            const columnWidths = [70, 20, 30, 30]; // عرض الأعمدة: اسم المنتج، الكمية، السعر، الإجمالي
-            const columnHeaders = ['Product Name', 'Quantity', 'Price', 'Total'];
-            const taxRate = 0.18;
-            const taxAmount = totalPrice * taxRate;
-            const grandTotal = totalPrice + taxAmount;
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                const margin = 15;
+                let y = 20;
+                const lineHeight = 10;
+                const columnWidths = [70, 20, 30, 30]; // عرض الأعمدة: اسم المنتج، الكمية، السعر، الإجمالي
+                const columnHeaders = ['Product Name', 'Quantity', 'Price', 'Total'];
+                const taxRate = 0.18;
+                const taxAmount = totalPrice * taxRate;
+                const grandTotal = totalPrice + taxAmount;
 
-            pdf.setFontSize(16);
-            pdf.text('Order Summary', margin, y);
-            y += 15;
+                pdf.setFontSize(16);
+                pdf.text('Order Summary', margin, y);
+                y += 15;
 
-            pdf.setFontSize(12);
+                pdf.setFontSize(12);
 
-            // رسم خط فاصل بعد العنوان
-            pdf.line(margin, y, 210 - margin, y);
-            y += 5;
-
-            // كتابة رؤوس الأعمدة
-            let x = margin;
-            for (let i = 0; i < columnHeaders.length; i++) {
-                pdf.text(columnHeaders[i], x, y);
-                x += columnWidths[i];
-            }
-            y += 5;
-            pdf.line(margin, y, 210 - margin, y);
-            y += 5;
-
-            // كتابة تفاصيل المنتجات
-            selectedProducts.forEach(product => {
-                let x = margin;
-                pdf.text(`${product.name} (${product.code})`, x, y); // إضافة كود المنتج بجانب الاسم
-                x += columnWidths[0];
-                pdf.text(product.quantity.toString(), x, y);
-                x += columnWidths[1];
-                pdf.text(product.price.toFixed(2), x, y);
-                x += columnWidths[2];
-                pdf.text((product.price * product.quantity).toFixed(2), x, y);
-                y += lineHeight;
+                // رسم خط فاصل بعد العنوان
                 pdf.line(margin, y, 210 - margin, y);
-            });
+                y += 5;
 
-            y += 10;
-            pdf.setFontSize(14);
-            pdf.text(`Subtotal: ${totalPrice.toFixed(2)} ILS`, margin, y);
-            y += lineHeight;
-            pdf.text(`Tax (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} ILS`, margin, y);
-            y += lineHeight;
-            pdf.text(`Grand Total: ${grandTotal.toFixed(2)} ILS`, margin, y);
+                // كتابة رؤوس الأعمدة
+                let x = margin;
+                for (let i = 0; i < columnHeaders.length; i++) {
+                    pdf.text(columnHeaders[i], x, y);
+                    x += columnWidths[i];
+                }
+                y += 5;
+                pdf.line(margin, y, 210 - margin, y);
+                y += 5;
 
-            window.open(pdf.output('bloburl'), '_blank'); // فتح PDF في المتصفح
+                // كتابة تفاصيل المنتجات
+                selectedProducts.forEach(product => {
+                    let x = margin;
+                    pdf.text(`${product.name} (${product.code})`, x, y); // إضافة كود المنتج بجانب الاسم
+                    x += columnWidths[0];
+                    pdf.text(product.quantity.toString(), x, y);
+                    x += columnWidths[1];
+                    pdf.text(product.price.toFixed(2), x, y);
+                    x += columnWidths[2];
+                    pdf.text((product.price * product.quantity).toFixed(2), x, y);
+                    y += lineHeight;
+                    pdf.line(margin, y, 210 - margin, y);
+                });
+
+                y += 10;
+                pdf.setFontSize(14);
+                pdf.text(`Subtotal: ${totalPrice.toFixed(2)} ILS`, margin, y);
+                y += lineHeight;
+                pdf.text(`Tax (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} ILS`, margin, y);
+                y += lineHeight;
+                pdf.text(`Grand Total: ${grandTotal.toFixed(2)} ILS`, margin, y);
+
+                window.open(pdf.output('bloburl'), '_blank'); // فتح PDF في المتصفح
+            } catch (error) {
+                console.error("Error generating or opening PDF:", error);
+                alert('Failed to generate PDF.');
+            }
         }
     </script>
 </body>
