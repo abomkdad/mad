@@ -8,20 +8,17 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body {
-            background-color: #1a202c; /* لون رمادي داكن */
-            color: #e2e8f0; /* تغيير لون النص الافتراضي إلى لون فاتح */
-        }
+        body { background-color: #1e293b; color: #f3f4f6; } /* خلفية داكنة ولون نص فاتح */
         .product-card {
-            background-color: #2d3748; /* لون رمادي أغمق */
+            background-color: #334155;
             border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* ظل أعمق */
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1); /* ظل فاتح للتباين */
             padding: 15px;
             transition: transform 0.2s;
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #cbd5e0; /* لون نص فاتح للبطاقة */
+            color: #f3f4f6; /* لون نص فاتح */
         }
         .product-card:hover {
             transform: scale(1.05);
@@ -32,43 +29,47 @@
             margin-top: 0.75rem;
             margin-bottom: 0.5rem;
             text-align: center;
-            color: #f7fafc; /* لون نص فاتح لعنوان المنتج */
+            color: #f3f4f6; /* لون نص فاتح */
+        }
+        /* إضافة هذا النمط لتلوين السعر بالأخضر في قائمة المنتجات */
+        .product-title span.price {
+            color: #4CAF50; /* أخضر فاتح */
         }
         .product-description {
             font-size: 0.875rem;
             text-align: center;
             margin-bottom: 0.75rem;
-            color: #a0aec0; /* لون نص فاتح لوصف المنتج */
+            color: #9ca3af; /* لون نص ثانوي فاتح */
             line-height: 1.5;
         }
         #productList {
             height: 70vh;
             overflow-y: auto;
             padding: 10px;
-            border: 1px solid #4a5568; /* حد أغمق */
+            border: 1px solid #4b5563; /* حدود داكنة */
             border-radius: 10px;
             margin-bottom: 60px;
-            background-color: #374151; /* لون رمادي داكن لقائمة المنتجات */
-            color: #f7fafc; /* لون نص فاتح لقائمة المنتجات */
+            background-color: #334155; /* خلفية داكنة */
+            color: #f3f4f6; /* لون نص فاتح */
         }
         #cartDisplay {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background-color: #2d3748; /* لون رمادي أغمق */
+            background-color: #334155; /* خلفية داكنة */
             padding: 15px;
-            border-top: 3px solid #48bb78; /* لون أخضر أغمق قليلاً */
+            border-top: 3px solid #16a34a; /* لون أخضر فاتح للتمييز */
             max-height: 250px;
             overflow-y: auto;
-            color: #cbd5e0; /* لون نص فاتح للسلة */
+            color: #f3f4f6; /* لون نص فاتح */
         }
         .cart-item {
             display: flex;
             align-items: center;
             margin-bottom: 1rem;
             justify-content: space-between;
-            color: #e2e8f0; /* لون نص فاتح للعناصر */
+            color: #f3f4f6; /* لون نص فاتح */
         }
         .cart-item img {
             width: 50px;
@@ -77,53 +78,57 @@
             border-radius: 0.5rem;
         }
         .cart-item-details {
-            flex-grow: 1; /* Allows details to take up available space */
+            flex-grow: 1;
+            color: #f3f4f6;
+        }
+        .cart-item-details span.price {
+            color: #4CAF50; /* أخضر فاتح */
         }
         .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1; /* Sit on top */
+            display: none;
+            position: fixed;
+            z-index: 1;
             left: 0;
             top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.7); /* أسود مع شفافية أكبر */
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7); /* خلفية سوداء مع تعتيم */
         }
         .modal-content {
-            background-color: #374151; /* لون رمادي أغمق للنافذة */
-            margin: 0 auto; /* إزالة الهوامش */
-            top: 0; /* تثبيت في الأعلى */
+            background-color: #4b5563; /* خلفية داكنة */
+            margin: 0 auto;
+            top: 0;
             padding: 20px;
-            border: 1px solid #4a5568; /* حد أغمق */
+            border: 1px solid #6b7280; /* حدود داكنة */
             width: 80%;
             border-radius: 10px;
-            position: fixed; /* تغيير الوضع إلى ثابت */
-            z-index: 10; /* التأكد من ظهورها فوق العناصر الأخرى */
-            color: #f7fafc; /* لون نص فاتح للنافذة */
+            position: fixed;
+            z-index: 10;
+            color: #f3f4f6; /* لون نص فاتح */
         }
         #closeModal {
-            color: #cbd5e0; /* لون فاتح لزر الإغلاق */
+            color: #9ca3af; /* لون أيقونة الإغلاق فاتح */
             font-size: 1.75rem;
         }
         #closeModal:hover,
         #closeModal:focus {
-            color: #f7fafc; /* لون أفتح عند التhover */
+            color: #f3f4f6; /* لون أيقونة الإغلاق عند التفاعل */
         }
         #confirmationMessage {
             position: fixed;
             top: 1.5rem;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #48bb78; /* أخضر أغمق */
-            color: #f7fafc; /* نص فاتح */
+            background-color: #16a34a; /* لون أخضر داكن */
+            color: #f3f4f6; /* لون نص فاتح */
             padding: 1rem 2rem;
             border-radius: 0.375rem;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
         }
         .delete-button {
-            background-color: #e53e3e; /* أحمر أغمق */
+            background-color: #dc2626; /* لون أحمر داكن */
             color: white;
             border: none;
             padding: 5px 10px;
@@ -136,10 +141,10 @@
             transition: background-color 0.3s ease;
         }
         .delete-button:hover {
-            background-color: #c53030; /* أحمر أغمق عند التhover */
+            background-color: #b91c1c; /* لون أحمر أغمق عند التفاعل */
         }
         .whatsapp-button {
-            background-color: #38a169; /* أخضر أغمق */
+            background-color: #16a34a; /* لون أخضر داكن */
             color: white;
             border: none;
             padding: 10px 15px;
@@ -154,45 +159,36 @@
             margin-left: 0.5rem;
         }
         .whatsapp-button:hover {
-            background-color: #2f855a; /* أخضر أغمق عند التhover */
-        }
-        #downloadPdfButton {
-            background-color: #4a5568; /* رمادي داكن */
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.875rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 0.5rem;
-            margin-left: 0.5rem;
-        }
-        #downloadPdfButton:hover {
-            background-color: #374151; /* رمادي أغمق عند التhover */
+            background-color: #15803d; /* لون أخضر أغمق عند التفاعل */
         }
         #searchInput {
-            border: 1px solid #4a5568; /* حد أغمق */
-            padding: 0.75rem;
-            border-radius: 0.375rem;
-            width: 100%;
-            background-color: #374151; /* لون رمادي داكن */
-            color: #f7fafc; /* لون نص فاتح */
+            border: 1px solid #4b5563;
+            background-color: #334155;
+            color: #f3f4f6;
         }
-
         #searchInput::placeholder {
-            color: #a0aec0; /* لون فاتح للنص البديل */
+            color: #9ca3af;
         }
-        /* إزالة CSS الخاص بالطباعة */
+        #categoryFilter {
+            border: 1px solid #4b5563;
+            background-color: #334155;
+            color: #f3f4f6;
+        }
+        /* إضافة هذا النمط لتلوين السعر بالأخضر في النافذة المنبثقة */
+        #modalContent div:nth-child(3) { /* استهداف ثالث div داخل #modalContent */
+            color: #4CAF50; /* أخضر فاتح */
+        }
     </style>
 </head>
 <body>
     <div class="container mx-auto p-2">
         <div class="flex justify-between items-center mb-4">
             <input id="searchInput" type="text" placeholder="ابحث عن המוצר..." class="border p-2 rounded w-full">
+        </div>
+        <div class="mb-4">
+            <select id="categoryFilter" class="border p-2 rounded w-full">
+                <option value="">جميع الفئات</option>
+            </select>
         </div>
         <div id="productList" class="grid grid-cols-3 gap-2"></div>
         <div id="cartDisplay"></div>
@@ -216,37 +212,30 @@
 
             rows.forEach(row => {
                 const productName = row.c[0]?.v;
-                const productDescription = row.c[1]?.v || 'بدون وصف';
+                const productCategory = row.c[1]?.v || 'غير مصنف'; // استخدام العمود B للفئة
+                const productDescription = row.c[1]?.v || 'بدون وصف'; // لا يزال يتم استخدامه للوصف مؤقتًا، يمكنك تعديله إذا لزم الأمر
                 const productPrice = parseFloat(row.c[2]?.v) || 0;
                 const productImage = row.c[3]?.v;
                 const productCode = row.c[4]?.v; // جلب رمز المنتج من العمود E (index 4)
 
                 if (productName) {
-                    products.push({ name: productName, description: productDescription, price: productPrice, image: productImage, code: productCode });
+                    products.push({ name: productName, category: productCategory, description: productDescription, price: productPrice, image: productImage, code: productCode });
                 }
             });
             displayProducts(products);
-
-            // إضافة المنتج المطلوب إلى السلة مباشرة بعد تحميل المنتجات
-            const desiredProductCode = 'w122 xf';
-            const quantity = 10;
-            const productToAdd = products.find(p => p.code === desiredProductCode);
-
-            if (productToAdd) {
-                selectedProducts.push({ ...productToAdd, quantity: quantity });
-                displayCart();
-                downloadOrderPDF(0); // سيتم حساب السعر الإجمالي داخل الدالة
-                // تحفيز زر الواتساب (يمكنك تعديل هذا حسب الحاجة)
-                setTimeout(() => {
-                    $('#whatsappButton').click();
-                    }, 500);
-            } else {
-                alert(`المنتج ذو الرمز "${desiredProductCode}" غير موجود.`);
-            }
-
+            populateCategoryFilter(products); // استدعاء دالة لملء فلتر الفئات
         }).fail(function() {
             $('#productList').html('<div class="text-red-500 text-center">שגיאה בטעינת המוצרים. אנא נסה שוב מאוחר יותר.</div>');
         });
+
+        function populateCategoryFilter(products) {
+            const categoryFilter = $('#categoryFilter');
+            const uniqueCategories = [...new Set(products.map(product => product.category))];
+
+            uniqueCategories.forEach(category => {
+                categoryFilter.append(`<option value="${category}">${category}</option>`);
+            });
+        }
 
         function displayProducts(productsToShow) {
             $('#productList').empty();
@@ -256,7 +245,7 @@
                         ${product.image ? `<div style="width: 100%; height: 0; padding-bottom: 100%; position: relative; margin-bottom: 0.5rem; border-radius: 0.75rem; overflow: hidden;">
                             <img src="${product.image}" style="position: absolute; width: 100%; height: 100%; object-fit: cover;">
                         </div>` : ''}
-                        <div class="product-title">${product.name} - ${product.price.toFixed(2)} שקל</div>
+                        <div class="product-title">${product.name} - <span class="price">${product.price.toFixed(2)} שקל</span></div>
                         <div class="product-description">${product.description}</div>
                     </div>
                 `;
@@ -269,8 +258,8 @@
             $('#modalContent').html(`
                 ${image ? `<img src="${image}" class="w-full max-h-48 object-contain rounded mb-4">` : ''}
                 <div class="text-lg font-bold mb-2">${name}</div>
-                <div>מחיר: ${price} ILS</div>
-                <div class="mt-3"><input type="number" id="quantityInput" min="1" placeholder="כמות" dir="rtl" class="border rounded-md p-3 w-32 text-lg text-black"></input></div>
+                <div>מחיר: <span class="price">${price}</span> ILS</div>
+                <div class="mt-3"><input type="number" id="quantityInput" min="1" placeholder="כמות" dir="rtl" class="border rounded-md p-3 w-32 text-lg text-black"></div>
                 <button onclick="addToCart('${name}', ${price}, '${image}')" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">הוסף לסל</button>
             `);
             $('#productModal').show();
@@ -305,7 +294,7 @@
                     <div class="cart-item">
                         <div class="flex items-center">
                             ${product.image ? `<img src="${product.image}">` : ''}
-                            <div class="cart-item-details">${product.name} - כמות: ${product.quantity} - מחיר: ${itemPrice.toFixed(2)} שקל</div>
+                            <div class="cart-item-details">${product.name} - כמות: ${product.quantity} - מחיר: <span class="price">${itemPrice.toFixed(2)} שקל</span></div>
                         </div>
                         <button class="delete-button" onclick="removeFromCart(${index})">حذف</button>
                     </div>
@@ -363,10 +352,24 @@
         });
 
         $('#searchInput').on('input', function() {
-            const searchText = $(this).val().toLowerCase();
-            const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchText));
-            displayProducts(filteredProducts);
+            const selectedCategory = $('#categoryFilter').val();
+            filterProducts(selectedCategory);
         });
+
+        $('#categoryFilter').on('change', function() {
+            const selectedCategory = $(this).val();
+            filterProducts(selectedCategory);
+        });
+
+        function filterProducts(category) {
+            const searchText = $('#searchInput').val().toLowerCase();
+            const filteredProducts = products.filter(product => {
+                const categoryMatch = !category || product.category === category;
+                const searchMatch = product.name.toLowerCase().includes(searchText);
+                return categoryMatch && searchMatch;
+            });
+            displayProducts(filteredProducts);
+        }
 
         function downloadOrderPDF(totalPrice) {
             const { jsPDF } = window.jspdf;
