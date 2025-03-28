@@ -31,10 +31,6 @@
             text-align: center;
             color: #f3f4f6; /* لون نص فاتح */
         }
-        /* إضافة هذا النمط لتلوين السعر بالأخضر في قائمة المنتجات */
-        .product-title span.price {
-            color: #4CAF50; /* أخضر فاتح */
-        }
         .product-description {
             font-size: 0.875rem;
             text-align: center;
@@ -80,9 +76,6 @@
         .cart-item-details {
             flex-grow: 1;
             color: #f3f4f6;
-        }
-        .cart-item-details span.price {
-            color: #4CAF50; /* أخضر فاتح */
         }
         .modal {
             display: none;
@@ -174,9 +167,9 @@
             background-color: #334155;
             color: #f3f4f6;
         }
-        /* إضافة هذا النمط لتلوين السعر بالأخضر في النافذة المنبثقة */
-        #modalContent div:nth-child(3) { /* استهداف ثالث div داخل #modalContent */
-            color: #4CAF50; /* أخضر فاتح */
+        /* إخفاء السعر في النافذة المنبثقة */
+        #modalContent div:nth-child(3) {
+            display: none;
         }
     </style>
 </head>
@@ -241,11 +234,11 @@
             $('#productList').empty();
             productsToShow.forEach(product => {
                 const productHtml = `
-                    <div class="product-card" onclick="openModal('${product.name}', ${product.price}, '${product.image}')">
+                    <div class="product-card" onclick="openModal('${product.name}', '${product.image}')">
                         ${product.image ? `<div style="width: 100%; height: 0; padding-bottom: 100%; position: relative; margin-bottom: 0.5rem; border-radius: 0.75rem; overflow: hidden;">
                             <img src="${product.image}" style="position: absolute; width: 100%; height: 100%; object-fit: cover;">
                         </div>` : ''}
-                        <div class="product-title">${product.name} - <span class="price">${product.price.toFixed(2)} שקל</span></div>
+                        <div class="product-title">${product.name}</div>
                         <div class="product-description">${product.description}</div>
                     </div>
                 `;
@@ -253,22 +246,21 @@
             });
         }
 
-        function openModal(name, price, image) {
+        function openModal(name, image) {
             console.log('openModal called');
             $('#modalContent').html(`
                 ${image ? `<img src="${image}" class="w-full max-h-48 object-contain rounded mb-4">` : ''}
                 <div class="text-lg font-bold mb-2">${name}</div>
-                <div>מחיר: <span class="price">${price}</span> ILS</div>
                 <div class="mt-3"><input type="number" id="quantityInput" min="1" placeholder="כמות" dir="rtl" class="border rounded-md p-3 w-32 text-lg text-black"></div>
-                <button onclick="addToCart('${name}', ${price}, '${image}')" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">הוסף לסל</button>
+                <button onclick="addToCart('${name}', '${image}')" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">הוסף לסל</button>
             `);
             $('#productModal').show();
         }
 
-        function addToCart(name, price, image) {
+        function addToCart(name, image) {
             const quantity = parseInt($('#quantityInput').val());
             const productDetails = products.find(p => p.name === name);
-            selectedProducts.push({ name, price, image, quantity, code: productDetails ? productDetails.code : '' }); // تخزين رمز المنتج عند الإضافة إلى السلة
+            selectedProducts.push({ name, image, quantity: quantity, code: productDetails ? productDetails.code : '' }); // تخزين الكمية
             $('#productModal').hide();
             displayCart();
             // عرض رسالة التأكيد
@@ -286,15 +278,12 @@
 
         function displayCart() {
             $('#cartDisplay').empty();
-            let totalPrice = 0;
             selectedProducts.forEach((product, index) => {
-                const itemPrice = product.price * product.quantity;
-                totalPrice += itemPrice;
                 $('#cartDisplay').append(`
                     <div class="cart-item">
                         <div class="flex items-center">
                             ${product.image ? `<img src="${product.image}">` : ''}
-                            <div class="cart-item-details">${product.name} - כמות: ${product.quantity} - מחיר: <span class="price">${itemPrice.toFixed(2)} שקל</span></div>
+                            <div class="cart-item-details">${product.name} - כמות: ${product.quantity}</div>
                         </div>
                         <button class="delete-button" onclick="removeFromCart(${index})">حذف</button>
                     </div>
@@ -302,7 +291,6 @@
             });
 
             if (selectedProducts.length > 0) {
-                $('#cartDisplay').append(`<div class="mt-2 font-bold">סך הכל: ${totalPrice.toFixed(2)} שקל</div>`);
                 $('#cartDisplay').append('<button id="whatsappButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">שתף בוואטסאפ 📲</button>');
                 $('#cartDisplay').append('<button id="downloadPdfButton" class="mt-4 ml-2 bg-red-500 hover:bg-red-600 text-white py-2.5 px-5 rounded-md font-semibold">Download as PDF 📄</button>');
 
@@ -313,29 +301,20 @@
                     }
                     let message = '';
                     let totalQuantity = 0;
-                    let totalPriceWithoutTax = 0;
-                    const taxRate = 0.18; // نسبة الضريبة (18%)
 
                     selectedProducts.forEach(p => {
                         message += `מוצר: ${p.name} (${p.code}) = כמות: ${p.quantity}\n`;
                         totalQuantity += parseInt(p.quantity);
-                        totalPriceWithoutTax += p.price * p.quantity;
                     });
 
-                    const taxAmount = totalPriceWithoutTax * taxRate;
-                    const totalPriceWithTax = totalPriceWithoutTax + taxAmount;
-
                     message += `\nכמות כוללת: ${totalQuantity}`;
-                    message += `\nסך הכל ללא מע"מ: ${totalPriceWithoutTax.toFixed(2)} שקל`;
-                    message += `\nמע"מ (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} שקל`;
-                    message += `\nהסך הכולל כולל מע"מ: ${totalPriceWithTax.toFixed(2)} שקל`;
 
                     const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
                     window.open(whatsappURL, '_blank');
                 });
 
                 $('#downloadPdfButton').click(function() {
-                    downloadOrderPDF(totalPrice); // استدعاء وظيفة تنزيل PDF
+                    downloadOrderPDF(); // استدعاء وظيفة تنزيل PDF
                 });
             }
         }
@@ -371,17 +350,14 @@
             displayProducts(filteredProducts);
         }
 
-        function downloadOrderPDF(totalPrice) {
+        function downloadOrderPDF() {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
             const margin = 15;
             let y = 20;
             const lineHeight = 10;
-            const columnWidths = [70, 20, 30, 30]; // عرض الأعمدة: اسم المنتج، الكمية، السعر، الإجمالي
-            const columnHeaders = ['Product Name', 'Quantity', 'Price', 'Total'];
-            const taxRate = 0.18;
-            const taxAmount = totalPrice * taxRate;
-            const grandTotal = totalPrice + taxAmount;
+            const columnWidths = [90, 30]; // عرض الأعمدة: اسم المنتج، الكمية
+            const columnHeaders = ['Product Name', 'Quantity'];
 
             pdf.setFontSize(16);
             pdf.text('Order Summary', margin, y);
@@ -409,21 +385,9 @@
                 pdf.text(`${product.name} (${product.code})`, x, y); // إضافة كود المنتج بجانب الاسم
                 x += columnWidths[0];
                 pdf.text(product.quantity.toString(), x, y);
-                x += columnWidths[1];
-                pdf.text(product.price.toFixed(2), x, y);
-                x += columnWidths[2];
-                pdf.text((product.price * product.quantity).toFixed(2), x, y);
                 y += lineHeight;
                 pdf.line(margin, y, 210 - margin, y);
             });
-
-            y += 10;
-            pdf.setFontSize(14);
-            pdf.text(`Subtotal: ${totalPrice.toFixed(2)} ILS`, margin, y);
-            y += lineHeight;
-            pdf.text(`Tax (${(taxRate * 100).toFixed(0)}%): ${taxAmount.toFixed(2)} ILS`, margin, y);
-            y += lineHeight;
-            pdf.text(`Grand Total: ${grandTotal.toFixed(2)} ILS`, margin, y);
 
             window.open(pdf.output('bloburl'), '_blank'); // فتح PDF في المتصفح
         }
