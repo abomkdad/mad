@@ -1,190 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Ordering System</title>
+    <title>מערכת הזמנת מוצרים</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        body { background-color: #1e293b; color: #f3f4f6; } /* خلفية داكنة ولون نص فاتح */
-        .product-card {
-            background-color: #334155;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1); /* ظل فاتح للتباين */
-            padding: 15px;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #f3f4f6; /* لون نص فاتح */
-        }
-        .product-card:hover {
-            transform: scale(1.05);
-        }
-        .product-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-top: 0.75rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-            color: #f3f4f6; /* لون نص فاتح */
-        }
-        .product-description {
-            font-size: 0.875rem;
-            text-align: center;
-            margin-bottom: 0.75rem;
-            color: #9ca3af; /* لون نص ثانوي فاتح */
-            line-height: 1.5;
-        }
-        #productList {
-            height: 70vh;
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #4b5563; /* حدود داكنة */
-            border-radius: 10px;
-            margin-bottom: 60px;
-            background-color: #334155; /* خلفية داكنة */
-            color: #f3f4f6; /* لون نص فاتح */
-        }
-        #cartDisplay {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #334155; /* خلفية داكنة */
-            padding: 15px;
-            border-top: 3px solid #16a34a; /* لون أخضر فاتح للتمييز */
-            max-height: 250px;
-            overflow-y: auto;
-            color: #f3f4f6; /* لون نص فاتح */
-        }
-        .cart-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            justify-content: space-between;
-            color: #f3f4f6; /* لون نص فاتح */
-        }
-        .cart-item img {
-            width: 50px;
-            height: 50px;
-            margin-right: 1rem;
-            border-radius: 0.5rem;
-        }
-        .cart-item-details {
-            flex-grow: 1;
-            color: #f3f4f6;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7); /* خلفية سوداء مع تعتيم */
-        }
-        .modal-content {
-            background-color: #4b5563; /* خلفية داكنة */
-            margin: 0 auto;
-            top: 0;
-            padding: 20px;
-            border: 1px solid #6b7280; /* حدود داكنة */
-            width: 80%;
-            border-radius: 10px;
-            position: fixed;
-            z-index: 10;
-            color: #f3f4f6; /* لون نص فاتح */
-        }
-        #closeModal {
-            color: #9ca3af; /* لون أيقونة الإغلاق فاتح */
-            font-size: 1.75rem;
-        }
-        #closeModal:hover,
-        #closeModal:focus {
-            color: #f3f4f6; /* لون أيقونة الإغلاق عند التفاعل */
-        }
-        #confirmationMessage {
-            position: fixed;
-            top: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #16a34a; /* لون أخضر داكن */
-            color: #f3f4f6; /* لون نص فاتح */
-            padding: 1rem 2rem;
-            border-radius: 0.375rem;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .delete-button {
-            background-color: #dc2626; /* لون أحمر داكن */
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.875rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .delete-button:hover {
-            background-color: #b91c1c; /* لون أحمر أغمق عند التفاعل */
-        }
-        .whatsapp-button {
-            background-color: #16a34a; /* لون أخضر داكن */
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.875rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 0.5rem;
-            margin-left: 0.5rem;
-        }
-        .whatsapp-button:hover {
-            background-color: #15803d; /* لون أخضر أغمق عند التفاعل */
-        }
-        #searchInput {
-            border: 1px solid #4b5563;
-            background-color: #334155;
-            color: #f3f4f6;
-        }
-        #searchInput::placeholder {
-            color: #9ca3af;
-        }
-        #categoryFilter {
-            border: 1px solid #4b5563;
-            background-color: #334155;
-            color: #f3f4f6;
-        }
-        /* إخفاء السعر في النافذة المنبثقة */
-        #modalContent div:nth-child(3) {
-            display: none;
-        }
+        body { background-color: #1e293b; color: #f3f4f6; }
+        .product-card { background-color: #334155; border-radius: 12px; box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1); padding: 15px; transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; color: #f3f4f6; }
+        .product-card:hover { transform: scale(1.05); }
+        .product-title { font-size: 1rem; font-weight: 600; margin-top: 0.75rem; margin-bottom: 0.5rem; text-align: center; color: #f3f4f6; }
+        .product-title span.price { color: #4CAF50; }
+        .product-description { font-size: 0.875rem; text-align: center; margin-bottom: 0.75rem; color: #9ca3af; line-height: 1.5; }
+        #productList { height: 70vh; overflow-y: auto; padding: 10px; border: 1px solid #4b5563; border-radius: 10px; margin-bottom: 60px; background-color: #334155; color: #f3f4f6; }
+        #cartDisplay { position: fixed; bottom: 0; left: 0; right: 0; background-color: #334155; padding: 15px; border-top: 3px solid #16a34a; max-height: 600px; overflow-y: auto; color: #f3f4f6; }
+        .cart-item { display: flex; align-items: center; margin-bottom: 1rem; justify-content: space-between; color: #f3f4f6; }
+        .cart-item img { width: 50px; height: 50px; margin-right: 1rem; border-radius: 0.5rem; }
+        .cart-item-details { flex-grow: 1; color: #f3f4f6; }
+        .cart-item-details span.price { color: #4CAF50; }
+        .modal { display: none; position: fixed; z-index: 20; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); }
+        .modal-content { background-color: #4b5563; margin: 15% auto; padding: 20px; border: 1px solid #6b7280; width: 80%; border-radius: 10px; position: relative; color: #f3f4f6; }
+        #closeModal { color: #9ca3af; font-size: 1.75rem; position: absolute; top: 10px; right: 15px; cursor: pointer; }
+        #closeModal:hover, #closeModal:focus { color: #f3f4f6; }
+        #confirmationMessage { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); background-color: #16a34a; color: #f3f4f6; padding: 1rem 2rem; border-radius: 0.375rem; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        .delete-button { background-color: #dc2626; color: white; border: none; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 0.875rem; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.3s ease; }
+        .delete-button:hover { background-color: #b91c1c; }
+        .whatsapp-button { background-color: #16a34a; color: white; border: none; padding: 10px 15px; text-align: center; text-decoration: none; display: inline-block; font-size: 0.875rem; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.3s ease; margin-top: 0.5rem; margin-left: 0.5rem; }
+        .whatsapp-button:hover { background-color: #15803d; }
+        #searchInput { border: 1px solid #4b5563; background-color: #334155; color: #f3f4f6; }
+        #searchInput::placeholder { color: #9ca3af; }
+        #categoryFilter { border: 1px solid #4b5563; background-color: #334155; color: #f3f4f6; }
+        .gift-option { margin-bottom: 0.5rem; padding: 0.5rem; border: 1px solid #6b7280; border-radius: 0.375rem; background-color: #4a5568; display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; }
+        .gift-option img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 0.5rem; border-radius: 0.25rem; }
+        .gift-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #6b7280; }
+        #giftModalContent { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .gift-item { display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .gift-item img { width: 100px; height: 100px; object-fit: contain; margin-bottom: 0.5rem; border-radius: 0.25rem; cursor: pointer; }
+        .select-gift-button { background-color: #16a34a; color: white; border: none; padding: 10px 15px; text-align: center; text-decoration: none; display: inline-block; font-size: 0.875rem; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.3s ease; margin-top: 1rem; }
+        .select-gift-button:hover { background-color: #15803d; }
+        #showGiftModalButton { background-color: #64b5f6; color: white; border: none; padding: 8px 12px; text-align: center; text-decoration: none; display: inline-block; font-size: 0.875rem; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.3s ease; margin-top: 0.5rem; }
+        #showGiftModalButton:hover { background-color: #42a5f5; }
     </style>
 </head>
 <body>
     <div class="container mx-auto p-2">
         <div class="flex justify-between items-center mb-4">
-            <input id="searchInput" type="text" placeholder="ابحث عن המוצר..." class="border p-2 rounded w-full">
+            <input id="searchInput" type="text" placeholder="חפש מוצר..." class="border p-2 rounded w-full">
         </div>
         <div class="mb-4">
             <select id="categoryFilter" class="border p-2 rounded w-full">
-                <option value="">جميع الفئات</option>
+                <option value="">כל הקטגוריות</option>
             </select>
         </div>
         <div id="productList" class="grid grid-cols-3 gap-2"></div>
-        <div id="cartDisplay"></div>
+        <div id="cartDisplay">
+            <div class="mt-2">
+                <a href="https://madperfume.co.il/?app=page.show.6" target="_blank" class="text-blue-500 hover:underline">מדיניות פרטיות</a>
+            </div>
+        </div>
 
         <div id="productModal" class="modal">
             <div class="modal-content">
@@ -192,78 +67,86 @@
                 <div id="modalContent"></div>
             </div>
         </div>
+
+        <div id="giftModal" class="modal">
+            <div class="modal-content">
+                <span id="closeGiftModal" class="closeModal">&times;</span>
+                <h3 class="font-bold mb-4 text-lg">בחר את המתנה החינמית שלך</h3>
+                <div id="giftModalContent">
+                    </div>
+            </div>
+        </div>
+
         <div id="confirmationMessage">התווסף לסל!</div>
     </div>
 
     <script>
         let products = [];
         let selectedProducts = [];
+        let selectedGift = null; // لتتبع הهدية المختارة
+        const GIFT_THRESHOLD_TIER_1 = 500;
+        const GIFT_THRESHOLD_TIER_2 = 300;
 
         $.get('https://docs.google.com/spreadsheets/d/1g3_D2NBwT27O2OI-v1R5tAB2QCfF3_ZCUL9sSLoCv54/gviz/tq?tqx=out:json', function(response) {
             const jsonData = JSON.parse(response.match(/google\.visualization\.Query\.setResponse\((.*)\)/)[1]);
             const rows = jsonData.table.rows;
+            products = rows; // تخزين الصفوف الخامسة مباشرة
 
-            rows.forEach(row => {
-                const productName = row.c[0]?.v;
-                const productCategory = row.c[1]?.v || 'غير مصنف'; // استخدام العمود B للفئة
-                const productDescription = row.c[1]?.v || 'بدون وصف'; // لا يزال يتم استخدامه للوصف مؤقتًا، يمكنك تعديله إذا لزم الأمر
-                const productPrice = parseFloat(row.c[2]?.v) || 0;
-                const productImage = row.c[3]?.v;
-                const productCode = row.c[4]?.v; // جلب رمز المنتج من العمود E (index 4)
-
-                if (productName) {
-                    products.push({ name: productName, category: productCategory, description: productDescription, price: productPrice, image: productImage, code: productCode });
-                }
-            });
-            displayProducts(products);
-            populateCategoryFilter(products); // استدعاء دالة لملء فلتر الفئات
+            displayProducts(rows); // تمرير الصفوف الخامسة إلى عرض المنتجات
+            populateCategoryFilter(rows); // تمرير الصفوف الخامسة إلى ملء הפילטר
         }).fail(function() {
             $('#productList').html('<div class="text-red-500 text-center">שגיאה בטעינת המוצרים. אנא נסה שוב מאוחר יותר.</div>');
         });
 
-        function populateCategoryFilter(products) {
+        function populateCategoryFilter(rows) {
             const categoryFilter = $('#categoryFilter');
-            const uniqueCategories = [...new Set(products.map(product => product.category))];
+            const uniqueCategories = [...new Set(rows.map(row => row.c[1]?.v).filter(Boolean))]; // استخراج הפئات מהשורות החמישיות
 
             uniqueCategories.forEach(category => {
                 categoryFilter.append(`<option value="${category}">${category}</option>`);
             });
         }
 
-        function displayProducts(productsToShow) {
+        function displayProducts(rows) {
             $('#productList').empty();
-            productsToShow.forEach(product => {
-                const productHtml = `
-                    <div class="product-card" onclick="openModal('${product.name}', '${product.image}')">
-                        ${product.image ? `<div style="width: 100%; height: 0; padding-bottom: 100%; position: relative; margin-bottom: 0.5rem; border-radius: 0.75rem; overflow: hidden;">
-                            <img src="${product.image}" style="position: absolute; width: 100%; height: 100%; object-fit: cover;">
-                        </div>` : ''}
-                        <div class="product-title">${product.name}</div>
-                        <div class="product-description">${product.description}</div>
-                    </div>
-                `;
-                $('#productList').append(productHtml);
+            rows.forEach(row => {
+                const productName = row.c[0]?.v;
+                const productPrice = parseFloat(row.c[5]?.v) || 0;
+                const productImage = row.c[3]?.v;
+                const productDescription = row.c[1]?.v || 'بدون وصف'; // שימוש בעמודה B לתיאור
+                if (productName) {
+                    const productHtml = `
+                        <div class="product-card" onclick="openModal('${productName}', ${productPrice}, '${productImage}')">
+                            ${productImage ? `<div style="width: 100%; height: 0; padding-bottom: 100%; position: relative; margin-bottom: 0.5rem; border-radius: 0.75rem; overflow: hidden;">
+                                <img src="${productImage}" style="position: absolute; width: 100%; height: 100%; object-fit: cover;">
+                            </div>` : ''}
+                            <div class="product-title">${productName} - <span class="price">${productPrice.toFixed(2)} שקל</span></div>
+                            <div class="product-description">${productDescription}</div>
+                        </div>
+                    `;
+                    $('#productList').append(productHtml);
+                }
             });
         }
 
-        function openModal(name, image) {
+        function openModal(name, price, image) {
             console.log('openModal called');
             $('#modalContent').html(`
                 ${image ? `<img src="${image}" class="w-full max-h-48 object-contain rounded mb-4">` : ''}
                 <div class="text-lg font-bold mb-2">${name}</div>
+                <div>מחיר: <span class="price">${price}</span> ILS</div>
                 <div class="mt-3"><input type="number" id="quantityInput" min="1" placeholder="כמות" dir="rtl" class="border rounded-md p-3 w-32 text-lg text-black"></div>
-                <button onclick="addToCart('${name}', '${image}')" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">הוסף לסל</button>
+                <button onclick="addToCart('${name}', ${price}, '${image}')" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">הוסף לסל</button>
             `);
             $('#productModal').show();
         }
 
-        function addToCart(name, image) {
+        function addToCart(name, price, image) {
             const quantity = parseInt($('#quantityInput').val());
-            const productDetails = products.find(p => p.name === name);
-            selectedProducts.push({ name, image, quantity: quantity, code: productDetails ? productDetails.code : '' }); // تخزين الكمية
+            const productDetails = products.find(row => row.c[0]?.v === name);
+            selectedProducts.push({ name, price, image, quantity, code: productDetails ? productDetails.c[4]?.v : '' });
             $('#productModal').hide();
             displayCart();
-            // عرض رسالة التأكيد
             $('#confirmationMessage').text('התווסף לסל!');
             $('#confirmationMessage').css('opacity', 1);
             setTimeout(() => {
@@ -276,54 +159,111 @@
             displayCart();
         }
 
+        function shareOrderViaWhatsApp(totalPrice) {
+            const phoneNumber = "972524033442";
+            let message = "ההזמנה שלי:\n";
+            selectedProducts.forEach(product => {
+                // מציאת פרטי המוצר המלאים ממערך המוצרים המקורי
+                const fullProductDetails = products.find(row => row.c[0]?.v === product.name);
+                const description = fullProductDetails?.c[1]?.v || 'אין תיאור'; // קבלת התיאור מעמודה 2
+
+                message += `${product.name} - כמות: ${product.quantity} - מחיר: ${product.price * product.quantity} שקל\n`;
+                message += `תיאור: ${description}\n`; // הוספת התיאור להודעה
+            });
+            message += `\nסך הכל: ${totalPrice.toFixed(2)} שקל`;
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            window.open(whatsappURL, '_blank');
+        }
+
         function displayCart() {
             $('#cartDisplay').empty();
+            let totalPrice = 0;
             selectedProducts.forEach((product, index) => {
+                const itemPrice = product.price * product.quantity;
+                totalPrice += itemPrice;
                 $('#cartDisplay').append(`
                     <div class="cart-item">
                         <div class="flex items-center">
                             ${product.image ? `<img src="${product.image}">` : ''}
-                            <div class="cart-item-details">${product.name} - כמות: ${product.quantity}</div>
+                            <div class="cart-item-details">${product.name} - כמות: ${product.quantity} - מחיר: <span class="price">${itemPrice.toFixed(2)} שקל</span></div>
                         </div>
-                        <button class="delete-button" onclick="removeFromCart(${index})">حذف</button>
+                        <button class="delete-button" onclick="removeFromCart(${index})">מחק</button>
                     </div>
                 `);
             });
 
             if (selectedProducts.length > 0) {
-                $('#cartDisplay').append('<button id="whatsappButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">שתף בוואטסאפ 📲</button>');
-                $('#cartDisplay').append('<button id="downloadPdfButton" class="mt-4 ml-2 bg-red-500 hover:bg-red-600 text-white py-2.5 px-5 rounded-md font-semibold">Download as PDF 📄</button>');
+                $('#cartDisplay').append(`<div class="mt-2 font-bold">סך הכל: ${totalPrice.toFixed(2)} שקל</div>`);
 
-                $('#whatsappButton').click(function() {
-                    if (selectedProducts.length === 0) {
-                        alert('לא נבחרו מוצרים.');
-                        return;
-                    }
-                    let message = '';
-                    let totalQuantity = 0;
-
-                    selectedProducts.forEach(p => {
-                        message += `מוצר: ${p.name} (${p.code}) = כמות: ${p.quantity}\n`;
-                        totalQuantity += parseInt(p.quantity);
+                if (totalPrice >= GIFT_THRESHOLD_TIER_2) {
+                    $('#cartDisplay').append(`<button id="showGiftModalButton" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">🎁 יש לך מתנה</button>`);
+                    $('#showGiftModalButton').off('click').on('click', function() {
+                        displayGiftModal(products, totalPrice);
                     });
+                }
 
-                    message += `\nכמות כוללת: ${totalQuantity}`;
+                $('#cartDisplay').append('<button id="whatsappButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2.5 px-5 rounded-md font-semibold">שתף בוואטסאפ 📲</button>');
 
-                    const whatsappURL = `https://wa.me/?text=${encodeURIComponent(message)}`;
-                    window.open(whatsappURL, '_blank');
-                });
-
-                $('#downloadPdfButton').click(function() {
-                    downloadOrderPDF(); // استدعاء وظيفة تنزيل PDF
+                $('#whatsappButton').off('click').on('click', function() {
+                    shareOrderViaWhatsApp(totalPrice);
                 });
             }
+        }
+
+        function displayGiftModal(rows, totalPrice) {
+            let eligibleGifts = [];
+            if (totalPrice >= GIFT_THRESHOLD_TIER_1) {
+                eligibleGifts = rows.filter(row => row.c && row.c[6]?.v && row.c[6]?.v.toLowerCase().includes('gift')); // עמודה 7 (אינדקס 6) עבור 500
+            } else if (totalPrice >= GIFT_THRESHOLD_TIER_2) {
+                eligibleGifts = rows.filter(row => row.c && row.c[7]?.v && row.c[7]?.v.toLowerCase().includes('gift')); // עמודה 8 (אינדקס 7) עבור 300
+            }
+
+            const giftModalContent = $('#giftModalContent');
+            giftModalContent.empty();
+
+            eligibleGifts.forEach(row => {
+                const productName = row.c[0]?.v;
+                const productImage = row.c[3]?.v;
+                const productCode = row.c[4]?.v;
+                const giftItem = $(`<div class="gift-item" data-name="${productName}" data-image="${productImage}" data-code="${productCode}" style="cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    ${productImage ? `<img src="${productImage}" style="width: 100px; height: 100px; object-fit: contain; margin-bottom: 0.5rem; border-radius: 0.25rem;">` : ''}
+                    <div>${productName}</div>
+                </div>`);
+
+                giftItem.on('click', function() {
+                    const giftName = $(this).data('name');
+                    const giftImage = $(this).data('image');
+                    const giftCode = $(this).data('code');
+
+                    // Check if a gift is already selected, remove it if so
+                    selectedProducts = selectedProducts.filter(item => item.isGift !== true);
+
+                    selectedProducts.push({ name: giftName, price: 0, image: giftImage, quantity: 1, code: giftCode, isGift: true });
+                    $('#giftModal').hide();
+                    displayCart();
+                });
+
+                giftModalContent.append(giftItem);
+            });
+
+            $('#giftModal').show();
         }
 
         $('#closeModal').click(function() {
             $('#productModal').hide();
         });
 
-        // إغلاق النافذة المنبثقة بالنقر خارجها
+        $('#closeGiftModal').click(function() {
+            $('#giftModal').hide();
+        });
+
+        $('#giftModal').click(function(event) {
+            if (event.target == this) {
+                $('#giftModal').hide();
+            }
+        });
+
         $('#productModal').click(function(event) {
             if (event.target == this) {
                 $('#productModal').hide();
@@ -342,54 +282,13 @@
 
         function filterProducts(category) {
             const searchText = $('#searchInput').val().toLowerCase();
-            const filteredProducts = products.filter(product => {
-                const categoryMatch = !category || product.category === category;
-                const searchMatch = product.name.toLowerCase().includes(searchText);
+            const filteredProducts = products.filter(row => {
+                const productName = row.c[0]?.v;
+                const categoryMatch = !category || row.c[1]?.v === category;
+                const searchMatch = productName && productName.toLowerCase().includes(searchText);
                 return categoryMatch && searchMatch;
             });
             displayProducts(filteredProducts);
-        }
-
-        function downloadOrderPDF() {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            const margin = 15;
-            let y = 20;
-            const lineHeight = 10;
-            const columnWidths = [90, 30]; // عرض الأعمدة: اسم المنتج، الكمية
-            const columnHeaders = ['Product Name', 'Quantity'];
-
-            pdf.setFontSize(16);
-            pdf.text('Order Summary', margin, y);
-            y += 15;
-
-            pdf.setFontSize(12);
-
-            // رسم خط فاصل بعد العنوان
-            pdf.line(margin, y, 210 - margin, y);
-            y += 5;
-
-            // كتابة رؤوس الأعمدة
-            let x = margin;
-            for (let i = 0; i < columnHeaders.length; i++) {
-                pdf.text(columnHeaders[i], x, y);
-                x += columnWidths[i];
-            }
-            y += 5;
-            pdf.line(margin, y, 210 - margin, y);
-            y += 5;
-
-            // كتابة تفاصيل المنتجات
-            selectedProducts.forEach(product => {
-                let x = margin;
-                pdf.text(`${product.name} (${product.code})`, x, y); // إضافة كود المنتج بجانب الاسم
-                x += columnWidths[0];
-                pdf.text(product.quantity.toString(), x, y);
-                y += lineHeight;
-                pdf.line(margin, y, 210 - margin, y);
-            });
-
-            window.open(pdf.output('bloburl'), '_blank'); // فتح PDF في المتصفح
         }
     </script>
 </body>
