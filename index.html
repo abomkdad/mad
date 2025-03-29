@@ -109,7 +109,10 @@
           const [selectedProduct, setSelectedProduct] = React.useState(null);
           const [draggingProduct, setDraggingProduct] = React.useState(null);
           const [isDragging, setIsDragging] = React.useState(false);
-          const [products, setProducts] = React.useState([
+          const LOCAL_STORAGE_KEY = 'warehouseMapProducts';
+
+          const storedProducts = localStorage.getItem(LOCAL_STORAGE_KEY);
+          const initialProducts = storedProducts ? JSON.parse(storedProducts) : [
     {
         "ProductName": "Description",
         "Image Link": "https://madperfume.co.il/upload/09-2023/product/A101.jpg",
@@ -2324,7 +2327,8 @@
         "Longitude": "34.5",
         "Latitude": "32.5"
     }
-]);
+];
+          const [products, setProducts] = React.useState(initialProducts);
           const [searchQuery, setSearchQuery] = React.useState('');
           const [filteredProducts, setFilteredProducts] = React.useState(products);
           const [suggestions, setSuggestions] = React.useState([]);
@@ -2360,6 +2364,10 @@
               setShowSuggestions(false);
             }
           }, [searchQuery, products]);
+
+          React.useEffect(() => {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(products));
+          }, [products]);
 
           const handleInputChange = (event) => {
             setSearchQuery(event.target.value);
