@@ -44,7 +44,8 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwljJNREWniJzEyLFLccwBZ_mVFEt739ySkgv9hdufhmOOVt1tBpgMHeejXrL3OwW7BnQ/exec";
 
-    fetch(API_URL)
+    // تأكد أن الطلب لا يسبب مشكلة CORS عبر استخدام mode: 'cors'
+    fetch(API_URL, { mode: 'cors' })
       .then(res => res.json())
       .then(products => {
         const container = document.getElementById("products");
@@ -67,7 +68,7 @@
       })
       .catch(err => {
         document.getElementById("products").innerText = "فشل في تحميل المنتجات";
-        console.error(err);
+        console.error("فشل تحميل المنتجات:", err);
       });
 
     function buyProduct(code, price) {
@@ -82,18 +83,22 @@
 
       fetch(API_URL, {
         method: "POST",
+        mode: "cors",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json"
         }
       })
-      .then(res => res.text())
+      .then(res => {
+        if (!res.ok) throw new Error("الرد غير مقبول من الخادم");
+        return res.text();
+      })
       .then(msg => {
         document.getElementById("msg-" + code).innerText = msg;
       })
       .catch(err => {
         document.getElementById("msg-" + code).innerText = "فشل في الإرسال";
-        console.error(err);
+        console.error("فشل الإرسال:", err);
       });
     }
   </script>
