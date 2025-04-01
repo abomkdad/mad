@@ -1,301 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-<title>صورة مع منتجات - بحث بالاسم مع إخفاء ووميض مستمر (ترتيب الصفوف مع عكس الخلفية)</title>
-<style>
-  body {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Map_of_a_fictional_city.svg/1200px-Map_of_a_fictional_city.svg.png'); /* رابط مؤقت لخريطة مدينة */
-    background-size: cover; /* لتغطية كامل الشاشة بالخريطة */
-    background-repeat: no-repeat; /* لمنع تكرار الخلفية */
-    background-position: center center; /* لمركزة الخريطة في الخلفية */
-    min-height: 100vh;
-    /* تم حذف تدوير الصفحة */
-  }
-  .image-container {
-    position: relative;
-    display: inline-block;
-    cursor: default;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.5); /* جعل الخلفية شبه شفافة */
-    border-radius: 8px;
-    margin-top: 20px;
-    width: 800px; /* يمكنك تعديل هذا الحجم */
-    height: 600px; /* يمكنك تعديل هذا الحجم */
-  }
-  .product-image {
-    position: absolute;
-    width: 40px; /* تصغير حجم الصور */
-    height: 40px; /* جعلها مربعة */
-    object-fit: cover; /* لضمان احتواء الصورة داخل الدائرة */
-    border-radius: 50%; /* لجعلها دائرية */
-    cursor: grab;
-    transform: translate(-50%, -50%);
-    border: 2px solid #fff; /* إضافة حدود بيضاء */
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* إضافة ظل خفيف */
-  }
-  .product-image.highlighted {
-    border: 3px solid yellow;
-  }
-  .product-image.flash {
-    animation: flashAnimation 1s infinite alternate;
-  }
-
-  @keyframes flashAnimation {
-    from { border-color: yellow; }
-    to { border-color: orange; }
-  }
-
-  #search-container {
-    margin-bottom: 20px; /* زيادة المسافة لأسفل */
-  }
-  #search-input {
-    padding: 10px 15px; /* زيادة حجم الحشو */
-    width: 350px; /* زيادة عرض حقل البحث */
-    border: 1px solid #aaa; /* تغيير لون الحدود */
-    border-radius: 6px; /* جعل الزوايا أكثر استدارة */
-    font-size: 16px; /* زيادة حجم الخط */
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* إضافة ظل خفيف */
-    transition: border-color 0.3s ease; /* إضافة انتقال سلس لتغيير لون الحدود */
-  }
-
-  #search-input:focus {
-    border-color: #007bff; /* تغيير لون الحدود عند التركيز */
-    outline: none; /* إزالة الخط الخارجي الافتراضي عند التركيز */
-    box-shadow: 2px 2px 7px rgba(0, 123, 255, 0.3); /* إضافة ظل أكثر وضوحًا عند التركيز */
-  }
-
-  #search-input::placeholder {
-    color: #bbb; /* تغيير لون النص البديل */
-    font-style: italic; /* جعل النص البديل مائلاً */
-  }
-
-  .vertical-line {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background-color: #ccc; /* لون الخط */
-    z-index: -1; /* ضع الخطوط خلف العناصر الأخرى */
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>نقطة بيع بسيطة</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      padding: 30px;
+      background: #f2f2f2;
+    }
+    .product {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      padding: 20px;
+      max-width: 300px;
+      margin: 20px auto;
+    }
+    .product img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .btn {
+      background-color: green;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn:disabled {
+      background-color: gray;
+    }
+  </style>
 </head>
 <body>
 
-  <div id="search-container">
-    <input id="search-input" type="text" placeholder="ابحث عن اسم المنتج">
-  </div>
-
-  <div class="image-container" id="imageContainer">
-    <div class="map-image" id="map-placeholder"></div>
-  </div>
+  <h1>قائمة المنتجات</h1>
+  <div id="products"></div>
 
   <script>
-    console.log("بدء تشغيل الكود...");
+    const API_URL = "https://script.google.com/macros/s/AKfycbxiOyr1jLDkNxcDs_X7FB0Io9fHSJC-S9sfkXfQnyekOeOKg0vF6x4Oze8kLMILakMArQ/exec";
 
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log("تم تحميل DOM.");
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(products => {
+        const container = document.getElementById("products");
+        container.innerHTML = "";
 
-      const imageContainer = document.getElementById('imageContainer');
-      if (!imageContainer) {
-        console.error("لم يتم العثور على imageContainer!");
-        return;
-      }
-
-      const productsData = JSON.parse(`
-[
-  {
-    "ProductName": "Description",
-    "Image Link": "A101.jpg",
-    "Longitude": "34.5",
-    "Latitude": "32.5"
-  },
-  {
-    "ProductName": "A102",
-    "Image Link": "A102.jpg",
-    "Longitude": "34.5",
-    "Latitude": "32.5"
-  },
-  {
-    "ProductName": "A104",
-    "Image Link": "A104.jpg",
-    "Longitude": "34.5",
-    "Latitude": "32.5"
-  },
-  {
-    "ProductName": "A105",
-    "Image Link": "A.105.jpg",
-    "Longitude": "34.5",
-    "Latitude": "32.5"
-  },
-  {
-    "ProductName": "A113",
-    "Image Link": "A113.jpg",
-    "Longitude": "34.5",
-    "Latitude": "32.5"
-  }
-]`);
-
-      const products = [];
-      let activeProduct = null;
-      let offsetX, offsetY;
-      let highlightedProduct = null;
-
-      const numberOfRows = 5; // يمكنك تعديل عدد الصفوف
-      const numberOfColumns = 3; // يمكنك تعديل عدد الأعمدة
-      const rowHeightPercentage = 100 / numberOfRows;
-      const columnWidthPercentage = 100 / numberOfColumns;
-
-      productsData.forEach((product, index) => {
-        const productImg = document.createElement('img');
-        productImg.src = product["Image Link"];
-        productImg.alt = product.ProductName;
-        productImg.classList.add('product-image');
-
-        const columnIndex = index % numberOfColumns;
-        const rowIndex = Math.floor(index / numberOfColumns) % numberOfRows;
-
-        const positionX = (columnIndex * columnWidthPercentage) + (columnWidthPercentage / 2) + '%';
-        const positionY = (rowIndex * rowHeightPercentage) + (rowHeightPercentage / 2) + '%';
-
-        productImg.style.left = positionX;
-        productImg.style.top = positionY;
-
-        productImg.addEventListener('mousedown', startDrag);
-        productImg.addEventListener('touchstart', startDrag); // إضافة مستمع حدث اللمس
-        imageContainer.appendChild(productImg);
-        products.push({ name: product.ProductName, x: positionX, y: positionY, element: productImg });
-        console.log(`تم إنشاء منتج باسم: ${product.ProductName} في الموضع: ${positionX}, ${positionY}`);
+        products.forEach(product => {
+          const div = document.createElement("div");
+          div.className = "product";
+          div.innerHTML = `
+            <img src="${product.image_url}" alt="${product.product_name_ar}">
+            <h2>${product.product_name_ar}</h2>
+            <p>السعر: <strong>${product.price}₪</strong></p>
+            <label>الكمية: </label>
+            <input type="number" id="qty-${product.product_code}" min="1" value="1"><br>
+            <button class="btn" onclick="buyProduct('${product.product_code}', ${product.price})">شراء</button>
+            <p id="msg-${product.product_code}"></p>
+          `;
+          container.appendChild(div);
+        });
+      })
+      .catch(err => {
+        document.getElementById("products").innerText = "فشل في تحميل المنتجات";
+        console.error(err);
       });
 
-      const searchInput = document.getElementById('search-input');
+    function buyProduct(code, price) {
+      const quantity = document.getElementById("qty-" + code).value;
+      const data = {
+        product_code: code,
+        quantity: quantity,
+        price: price
+      };
 
-      searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
+      document.getElementById("msg-" + code).innerText = "جارٍ الإرسال...";
 
-        products.forEach(productInfo => {
-          const productElement = productInfo.element;
-          const productNameLower = productInfo.name.toLowerCase();
-
-          if (productNameLower.includes(searchTerm)) {
-            productElement.classList.add('highlighted', 'flash');
-            productElement.style.display = 'block';
-          } else {
-            productElement.style.display = 'none';
-            productElement.classList.remove('highlighted');
-            productElement.classList.remove('flash');
-          }
-        });
-
-        if (!searchTerm) {
-          products.forEach(productInfo => {
-            productInfo.element.style.display = 'block';
-            productInfo.element.classList.remove('highlighted');
-            productInfo.element.classList.remove('flash');
-          });
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json"
         }
+      })
+      .then(res => res.text())
+      .then(msg => {
+        document.getElementById("msg-" + code).innerText = msg;
+      })
+      .catch(err => {
+        document.getElementById("msg-" + code).innerText = "فشل في الإرسال";
+        console.error(err);
       });
-
-      function getClientCoordinates(event) {
-        if (event.touches && event.touches.length > 0) {
-          return { clientX: event.touches[0].clientX, clientY: event.touches[0].clientY };
-        }
-        return { clientX: event.clientX, clientY: event.clientY };
-      }
-
-      console.log("تم تحميل DOM."); // تم نقله إلى هنا ليكون في بداية الوظيفة
-
-      const savedProducts = localStorage.getItem('productPositions');
-      console.log("Loaded from localStorage:", savedProducts);
-      if (savedProducts) {
-        const parsedProducts = JSON.parse(savedProducts);
-        console.log("Parsed products:", parsedProducts);
-        parsedProducts.forEach(productData => {
-          const productImg = products.find(p => p.name === productData.name)?.element;
-          console.log("Found product for loading:", productData.name, productImg, productData.x, productData.y);
-          if (productImg) {
-            productImg.style.left = productData.x;
-            productImg.style.top = productData.y;
-          }
-        });
-      }
-
-      function startDrag(event) {
-        console.log("بدء السحب", event.type, event.target);
-        activeProduct = event.target;
-        activeProduct.style.cursor = 'grabbing';
-
-        const coords = getClientCoordinates(event);
-        offsetX = coords.clientX - activeProduct.getBoundingClientRect().left;
-        offsetY = coords.clientY - activeProduct.getBoundingClientRect().top;
-
-        console.log("offsetX:", offsetX, "offsetY:", offsetY);
-
-        imageContainer.addEventListener('mousemove', drag);
-        imageContainer.addEventListener('mouseup', endDrag);
-        imageContainer.addEventListener('touchmove', drag);
-        imageContainer.addEventListener('touchend', endDrag);
-      }
-
-      function drag(event) {
-        if (!activeProduct) return;
-        event.preventDefault();
-
-        const containerRect = imageContainer.getBoundingClientRect();
-        const coords = getClientCoordinates(event);
-        let x = coords.clientX - containerRect.left - offsetX;
-        let y = coords.clientY - containerRect.top - offsetY;
-
-        x = Math.max(0, Math.min(x, containerRect.width - activeProduct.offsetWidth));
-        y = Math.max(0, Math.min(y, containerRect.height - activeProduct.offsetHeight));
-
-        console.log("x:", x, "y:", y);
-
-        activeProduct.style.left = (x / containerRect.width) * 100 + '%';
-        activeProduct.style.top = (y / containerRect.height) * 100 + '%';
-      }
-
-      function endDrag() {
-        console.log("endDrag called");
-        if (!activeProduct) return;
-
-        activeProduct.style.cursor = 'grab';
-        const finalX = activeProduct.style.left;
-        const finalY = activeProduct.style.top;
-        const productName = activeProduct.alt;
-
-        const productInfo = products.find(p => p.name === productName);
-        if (productInfo) {
-          productInfo.x = finalX;
-          productInfo.y = finalY;
-          console.log("تم تحديث موقع المنتج:", products);
-          const savedData = products.map(p => ({ name: p.name, x: p.x, y: p.y }));
-          console.log("Saving to localStorage:", savedData);
-          localStorage.setItem('productPositions', JSON.stringify(savedData));
-        }
-
-        activeProduct = null;
-        imageContainer.removeEventListener('mousemove', drag);
-        imageContainer.removeEventListener('mouseup', endDrag);
-        imageContainer.removeEventListener('touchmove', drag);
-        imageContainer.removeEventListener('touchend', endDrag);
-      }
-
-      const body = document.body;
-      const numberOfVerticalLines = 10;
-
-      // إنشاء خطوط عمودية
-      for (let i = 0; i < numberOfVerticalLines; i++) {
-        const line = document.createElement('div');
-        line.classList.add('vertical-line');
-        const lineWidth = window.innerWidth / numberOfVerticalLines;
-        line.style.left = (i * lineWidth) + (lineWidth / 2) + 'px';
-        body.appendChild(line);
-      }
-    });
+    }
   </script>
 
 </body>
