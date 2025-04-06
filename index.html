@@ -1,107 +1,371 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Changa&family=Tajawal:wght@700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
-  <title>نقطة بيع بسيطة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>طلب بالجملة</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial;
+  font-family: 'Cairo', sans-serif;
+  background: #121212;
+  color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  direction: rtl;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+    h1 {
+  font-family: 'Tajawal', sans-serif;
+  text-align: center;
+  background-color: #2e7d32;
+  color: #ffffff;
+  padding: 15px;
+  margin: 0;
+  font-size: 26px;
+}
+    #category-section {
+      background: #1e1e1e;
       text-align: center;
-      padding: 30px;
-      background: #f2f2f2;
+      padding: 10px;
+      overflow-x: auto;
+      white-space: nowrap;
     }
-    .product {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    .category-button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 32px 64px;
+  font-size: 64px;
+  margin: 8px;
+  cursor: pointer;
+  display: inline-block;
+  transition: background 0.3s;
+}
+    .category-button.active {
+  background-color: #66bb6a;
+  color: #fff;
+}
+    #search-section, .form-section {
+  text-align: center;
+  padding: 10px;
+  background: #1e1e1e;
+  box-shadow: 0 2px 4px rgba(255,255,255,0.05);
+}
+    #search-input, #branch {
+      width: 98%;
+      max-width: 1000px;
       padding: 20px;
-      max-width: 300px;
-      margin: 20px auto;
+      font-size: 48px;
+      border-radius: 8px;
+      border: 1px solid #444;
     }
-    .product img {
-      width: 100%;
-      border-radius: 10px;
+    #product-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
     }
-    .btn {
-      background-color: green;
+    #product-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+    .product {
+  font-family: 'Cairo', sans-serif;
+  background: #1e1e1e;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(255,255,255,0.05);
+  padding: 15px;
+  text-align: center;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+    .product:hover { transform: translateY(-5px); }
+    $1200px$2
+    button {
+      background: #2e7d32;
       color: white;
       padding: 10px 20px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
+      margin: 5px;
+    }
+    .qty-button {
+  background: #2c2c2c;
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin: 4px;
+  cursor: pointer;
+}
+    #modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #modal-content {
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 12px;
+  max-width: 320px;
+  text-align: center;
+  color: #fff;
+}
+    #modal input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #2c2c2c;
+  color: #fff;
+}
+    #cart {
+  font-family: 'Changa', sans-serif;
+  background: #1e1e1e;
+  padding: 15px;
+  border-top: 2px solid #444;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+  z-index: 100;
+  color: #f0f0f0;
+}
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 10px;
     }
-    .btn:disabled {
-      background-color: gray;
+    th, td {
+      border: 1px solid #555;
+      padding: 8px;
+      font-size: 14px;
+      text-align: center;
     }
-  </style>
+    th { background: #2c2c2c; }
+  .product img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+</style>
 </head>
 <body>
+  <h1>🛒 طلب بالجملة</h1>
+  <div class="form-section">
+    <label for="branch">اسم الفرع أو العميل:</label>
+    <input type="text" id="branch" placeholder="اكتب الاسم هنا">
+  </div>
+  <div id="search-section">
+    <input type="text" id="search-input" placeholder="🔍 ابحث باسم المنتج..." oninput="searchProducts()">
+  </div>
+  <div id="category-section" id="category-buttons"></div>
+  <div id="product-container">
+    <div id="product-list"></div>
+  </div>
 
-  <h1>قائمة المنتجات</h1>
-  <div id="products"></div>
+<!-- عربة الطلب -->
+<div id="cart" style="display:none">
+  <h2>📦 العربة</h2>
+  <table>
+    <thead>
+      <tr><th>المنتج</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th>إزالة</th></tr>
+    </thead>
+    <tbody id="cart-body"></tbody>
+  </table>
+  <h3 id="cart-total">المجموع الكلي: 0 ₪</h3>
+  <div class="form-section">
+    <button onclick="sendToWhatsApp()" style="font-size: 48px; padding: 20px 40px; background:#25D366; color: white; border-radius: 12px; font-weight: bold;">📲 إرسال واتساب</button>
+    <button onclick="downloadPDF()" style="font-size: 48px; padding: 20px 40px; background:#42A5F5; color: white; border-radius: 12px; font-weight: bold;">📄 تحميل PDF</button>
+  </div>
+</div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzq4UhIYv8yXFBsIemG60gAT0AMtL6cm2vEAMBVoZdj3ty1UKI2LCVotuiTvy7hcthxKQ/exec";
+<!-- نافذة منبثقة -->
+<div id="modal">
+  <div id="modal-content">
+    <h3 id="modal-title" style="font-size: 72px; color: #4dd0e1;"></h3>
+    <p id="modal-price"></p>
+    <input type="number" id="modal-qty" min="1" value="6">
+    <div>
+      <button class="qty-button" style="font-size: 16px; padding: 8px 16px;" style="background:#2e7d32; color:white; font-weight:bold;" onclick="setQty(12)">12</button>
+      <button class="qty-button" style="font-size: 16px; padding: 8px 16px;" onclick="setQty(18)">18</button>
+      <button class="qty-button" onclick="setQty(24)">24</button>
+      <button class="qty-button" onclick="setQty(30)">30</button>
+      <button class="qty-button" onclick="setQty(36)">36</button>
+      <button class="qty-button" onclick="setQty(42)">42</button>
+      <button class="qty-button" onclick="setQty(48)">48</button>
+    </div>
+    <button onclick="addToCartFromModal()" style="font-size: 48px; padding: 20px 30px; background:#ffca28; color:#000; font-weight:bold; border-radius:12px; "background:#66bb6a; color:black; font-weight:bold;">✔️ أضف للعربة</button>
+  </div>
+</div>
 
-    // تأكد أن الطلب لا يسبب مشكلة CORS عبر استخدام mode: 'cors'
-    fetch(API_URL, { mode: 'cors' })
-      .then(res => res.json())
-      .then(products => {
-        const container = document.getElementById("products");
-        container.innerHTML = "";
+<script>
+const { jsPDF } = window.jspdf;
+let allProducts = [];
+let filteredProducts = [];
+let selectedCategory = 'الكل';
 
-        products.forEach(product => {
-          const div = document.createElement("div");
-          div.className = "product";
-          div.innerHTML = `
-            <img src="${product.image_url}" alt="${product.product_name_ar}">
-            <h2>${product.product_name_ar}</h2>
-            <p>السعر: <strong>${product.price}₪</strong></p>
-            <label>الكمية: </label>
-            <input type="number" id="qty-${product.product_code}" min="1" value="1"><br>
-            <button class="btn" onclick="buyProduct('${product.product_code}', ${product.price})">شراء</button>
-            <p id="msg-${product.product_code}"></p>
-          `;
-          container.appendChild(div);
-        });
-      })
-      .catch(err => {
-        document.getElementById("products").innerText = "فشل في تحميل المنتجات";
-        console.error("فشل تحميل المنتجات:", err);
-      });
+async function loadProducts() {
+  const res = await fetch('https://docs.google.com/spreadsheets/d/1g3_D2NBwT27O2OI-v1R5tAB2QCfF3_ZCUL9sSLoCv54/gviz/tq?tqx=out:json');
+  const text = await res.text();
+  const json = JSON.parse(text.substr(47).slice(0, -2));
+  const rows = json.table.rows;
+  allProducts = rows.map(r => ({
+    name: r.c[0]?.v || '',
+    code: r.c[1]?.v || '',
+    price: parseFloat(r.c[2]?.v || 0),
+    image: r.c[3]?.v || '',
+    category: (r.c.length >= 5 && r.c[4]?.v) ? r.c[4].v : 'بدون تصنيف'
+  })).filter(p => p.name && p.code);
+  createCategoryButtons();
+  filterProducts();
+}
 
-    function buyProduct(code, price) {
-      const quantity = document.getElementById("qty-" + code).value;
-      const data = {
-        product_code: code,
-        quantity: quantity,
-        price: price
-      };
+function createCategoryButtons() {
+  const container = document.getElementById("category-section");
+  const categories = ['الكل', ...new Set(allProducts.map(p => p.category))];
+  container.innerHTML = '';
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'category-button';
+    if (cat === selectedCategory) btn.classList.add('active');
+    btn.textContent = cat;
+    btn.onclick = () => {
+      selectedCategory = cat;
+      createCategoryButtons();
+      filterProducts();
+    };
+    container.appendChild(btn);
+  });
+}
 
-      document.getElementById("msg-" + code).innerText = "جارٍ الإرسال...";
+function filterProducts() {
+  const query = document.getElementById("search-input").value.toLowerCase();
+  filteredProducts = allProducts.filter(p =>
+    (selectedCategory === 'الكل' || p.category === selectedCategory) &&
+    p.name.toLowerCase().includes(query)
+  );
+  displayProducts(filteredProducts);
+}
 
-      fetch(API_URL, {
-        method: "POST",
-        mode: "cors",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(res => {
-        if (!res.ok) throw new Error("الرد غير مقبول من الخادم");
-        return res.text();
-      })
-      .then(msg => {
-        document.getElementById("msg-" + code).innerText = msg;
-      })
-      .catch(err => {
-        document.getElementById("msg-" + code).innerText = "فشل في الإرسال";
-        console.error("فشل الإرسال:", err);
-      });
-    }
-  </script>
+function searchProducts() {
+  filterProducts();
+}
 
+function displayProducts(products) {
+  const list = document.getElementById("product-list");
+  list.innerHTML = "";
+  products.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "product";
+    div.onclick = () => openModal(p);
+    div.innerHTML = `
+      <img src="${p.image}" alt="${p.name}" />
+      <strong style="font-size: 48px; color: #4dd0e1;">${p.name}</strong><br>
+      <small style="color: yellow; font-size: 18px;"><strong>${p.code}</strong></small><br>
+      <small>${p.price} ₪</small>
+    `;
+    list.appendChild(div);
+  });
+}
+
+let selectedProduct = null;
+let cart = [];
+
+function openModal(product) {
+  selectedProduct = product;
+  document.getElementById("modal-title").innerText = product.name;
+  document.getElementById("modal-price").innerText = `السعر: ${product.price} ₪`;
+  document.getElementById("modal-qty").value = 6;
+  document.getElementById("modal").style.display = "flex";
+}
+
+function setQty(val) {
+  document.getElementById("modal-qty").value = val;
+}
+
+function addToCartFromModal() {
+  const qty = parseInt(document.getElementById("modal-qty").value);
+  const { name, code, price } = selectedProduct;
+  if (!qty || qty < 1) return;
+  cart.push({ name, code, qty, price });
+  renderCart();
+  document.getElementById("modal").style.display = "none";
+}
+
+function renderCart() {
+  const body = document.getElementById("cart-body");
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  body.innerHTML = cart.map((item, index) => `
+    <tr>
+      <td><span style="font-size: 48px; color: #4dd0e1;"><strong>${item.name}</strong></span><br><small style="color: yellow; font-size: 18px;"><strong>${item.code}</strong></small></td>
+      <td style="font-size: 70px;">${item.qty}</td>
+      <td style="font-size: 70px;">${item.price} ₪</td>
+      <td style="font-size: 70px;">${(item.qty * item.price).toFixed(2)} ₪</td>
+      <td><button onclick="removeFromCart(${index})" style="background:#c62828; padding:8px 16px; border-radius:10px; font-size:24px">🗑 حذف</button></td>
+    </tr>
+  `).join("");
+  const tax = total * 0.18;
+  const grandTotal = total + tax;
+  document.getElementById("cart-total").innerHTML = `
+    المجموع الكلي: ${total.toFixed(2)} ₪<br>
+    الضريبة (18%): ${tax.toFixed(2)} ₪<br>
+    <strong>الإجمالي النهائي: ${grandTotal.toFixed(2)} ₪</strong>
+  `;
+  document.getElementById("cart").style.display = cart.length > 0 ? 'block' : 'none';
+}
+
+function sendToWhatsApp() {
+  const branch = document.getElementById("branch").value.trim();
+  if (!branch) return alert("يرجى إدخال اسم الفرع أو العميل.");
+  let msg = `🛒 طلب جديد من ${branch}:
+
+`;
+  cart.forEach(item => {
+    msg += `• ${item.name} (${item.code}): ${item.qty} × ${item.price}₪ = ${(item.qty * item.price).toFixed(2)}₪
+`;
+  });
+  const phone = "972500000000"; // ← غيّر الرقم
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  renderCart();
+}
+
+function downloadPDF() {
+  const doc = new jsPDF();
+  const branch = document.getElementById("branch").value.trim();
+  let y = 10;
+  doc.text(`Order from: ${branch}`, 10, y);
+  y += 10;
+  cart.forEach(item => {
+    doc.text(`${item.name} (${item.code}) - ${item.qty} × ${item.price}₪ = ${(item.qty * item.price).toFixed(2)}₪`, 10, y);
+    y += 10;
+  });
+  doc.save("order.pdf");
+}
+
+loadProducts();
+loadProducts();
+</script>
 </body>
 </html>
