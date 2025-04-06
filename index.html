@@ -212,7 +212,7 @@
 
             rows.forEach(row => {
                 const productName = row.c[0]?.v;
-                const productCategory = row.c[4]?.v || 'غير مصنف'; // استخدام العمود B للفئة
+                const productCategory = row.c[1]?.v || 'غير مصنف'; // استخدام العمود B للفئة
                 const productDescription = row.c[1]?.v || 'بدون وصف'; // لا يزال يتم استخدامه للوصف مؤقتًا، يمكنك تعديله إذا لزم الأمر
                 const productPrice = parseFloat(row.c[2]?.v) || 0;
                 const productImage = row.c[3]?.v;
