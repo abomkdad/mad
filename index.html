@@ -71,10 +71,17 @@
       padding: 15px;
     }
     #product-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  min-width: 1000px;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   gap: 15px;
+  justify-content: start;
+  padding-bottom: 20px;
+}
+
+.product {
+  flex: 0 0 calc(100% / 3 - 20px);
+  max-width: calc(100% / 3 - 20px);
 }
     .product {
   font-family: 'Cairo', sans-serif;
