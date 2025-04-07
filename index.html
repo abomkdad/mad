@@ -47,7 +47,7 @@
       border-radius: 8px;
     }
     .product h4 {
-      font-size: 20px;
+      font-size: 80px;
       margin: 10px 0 5px;
     }
     #cart {
@@ -99,6 +99,11 @@
       width: 90%;
       max-width: 800px;
       font-size: 1.5em;
+    }
+    .modal-content h3 {
+      font-size: 4em;
+      color: #f4c542;
+      margin-bottom: 30px;
     }
     .modal-content select,
     .modal-content input,
@@ -189,7 +194,7 @@
 
     function openModal(code, category, price) {
       selectedProduct = { code, category, price };
-      $('#modalTitle').text(`كمية المنتج: ${code}`);
+      $('#modalTitle').text(`${code}`);
       $('#modalQtySelect').val("6");
       $('#modalCustomQty').val("");
       $('#quantityModal').fadeIn();
