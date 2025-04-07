@@ -10,6 +10,7 @@
       color: white;
       font-family: 'Tahoma', sans-serif;
       padding: 20px;
+      margin-bottom: 200px;
     }
     select, .quantity-select, .custom-qty {
       padding: 8px;
@@ -51,10 +52,14 @@
       margin: 10px 0 5px;
     }
     #cart {
-      margin-top: 30px;
-      padding: 15px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
       background-color: #222;
-      border-radius: 10px;
+      padding: 20px;
+      border-top: 2px solid #444;
+      z-index: 999;
     }
     #cart table {
       width: 100%;
@@ -65,6 +70,7 @@
       border: 1px solid #444;
       padding: 8px;
       text-align: center;
+      font-size: 14px;
     }
     .btn {
       background-color: #28a745;
@@ -139,6 +145,8 @@
       <tbody></tbody>
     </table>
     <p><strong>الإجمالي: <span id="total">0</span> ₪</strong></p>
+    <p><strong>الضريبة (17%): <span id="tax">0</span> ₪</strong></p>
+    <p><strong>الإجمالي مع الضريبة: <span id="totalWithTax">0</span> ₪</strong></p>
     <button class="btn" id="submit-order">إرسال الطلب</button>
   </div>
 
@@ -189,7 +197,11 @@
           </tr>
         `);
       });
+      const tax = Math.round(total * 0.17);
+      const totalWithTax = total + tax;
       $('#total').text(total);
+      $('#tax').text(tax);
+      $('#totalWithTax').text(totalWithTax);
     }
 
     function openModal(code, category, price) {
@@ -264,8 +276,11 @@
       cart.forEach(item => {
         message += `\n${item.code} | ${item.category} | ${item.qty} × ${item.price} = ${item.qty * item.price} ₪`;
       });
-      message += `\n\nالإجمالي: ${$('#total').text()} ₪`;
-      const phone = "972501234567";
+      const total = parseInt($('#total').text());
+      const tax = parseInt($('#tax').text());
+      const totalWithTax = parseInt($('#totalWithTax').text());
+      message += `\n\nالإجمالي: ${total} ₪\nالضريبة: ${tax} ₪\nالإجمالي مع الضريبة: ${totalWithTax} ₪`;
+      const phone = "972504745306";
       const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     });
