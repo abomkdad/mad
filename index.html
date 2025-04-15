@@ -90,14 +90,14 @@
 <body>
   <div id="products"></div>
 
-  <div class="popup" id="giftPopup">
-    <div class="popup-content">
-      <h3>🎁 اختر هديتك</h3>
-      <div id="giftList"></div>
-      <br>
-      <button onclick="$('#giftPopup').hide()">إغلاق</button>
-    </div>
+  <div class="popup" id="giftPopup" style="overflow-y: auto; align-items: flex-start; padding-top: 50px;">
+  <div class="popup-content" style="max-height: 80vh; overflow-y: auto;">
+    <h3>🎁 اختر هديتك</h3>
+    <div id="giftList"></div>
+    <br>
+    <button onclick="$('#giftPopup').hide()">إغلاق</button>
   </div>
+</div>
 
   <div class="cart-bar">
     <div id="cartItems"></div>
@@ -132,7 +132,7 @@
         message += `- ${p.code} | ${p.name} x ${qty}\n`;
       });
       $('#cartTotal').text(total);
-      $('#waLink').attr('href', `https://wa.me/?text=${encodeURIComponent(message + '\nالمجموع: ' + total + ' ₪')}`);
+      $('#waLink').attr('href', `https://wa.me/972524033442?text=${encodeURIComponent(message + '\nالمجموع: ' + total + ' ₪')}`);
       $('#giftBtn').toggle(total >= 300);
     }
 
