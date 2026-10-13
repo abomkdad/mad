@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'arabic-camera-reader/**'
+      - 'korean-audio-translator/**'
       - '.github/workflows/arabic-camera-pages.yml'
   workflow_dispatch:
 permissions:
